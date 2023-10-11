@@ -13,7 +13,7 @@ const production = !process.env.ROLLUP_WATCH;
 export default {
   input: "src/main.ts",
   output: {
-    sourcemap: true,
+    sourcemap: false,
     format: "iife",
     name: "app",
     file: "dist/bundle.js",
@@ -37,7 +37,22 @@ export default {
       name: "rollup-plugin-tampermonkey-css",
       renderChunk: (code, renderedChunk, outputOptions) => {
         let magicString = new MagicString(code);
-        magicString.prepend(`GM_addStyle(GM_getResourceText('css'));\n`);
+        const fs = require("fs");
+        const path = require("path");
+        let css = fs.readFileSync(
+          path.join(__dirname, "dist", "bundle.css"),
+          "utf8",
+          (err, data) => {
+            if (err) {
+              console.error(err);
+              return;
+            }
+            console.log(data);
+          }
+        );
+
+        magicString.prepend(`GM_addStyle("${css}");\n`);
+
         const result = { code: magicString.toString() };
         if (outputOptions.sourceMap) {
           result.map = magicString.generateMap({ hires: true });

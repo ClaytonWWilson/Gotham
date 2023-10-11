@@ -15,9 +15,6 @@ let meta = {
   homepage: pkg.homepage,
   author: pkg.author,
   namespace: "https://github.com",
-  resource: {
-    css: pathToFileURL(path.join(baseUrl, "bundle.css")),
-  },
   match: ["https://app.chime.aws/*"],
   grant: ["GM_addStyle", "GM_getResourceText", "GM_xmlhttpRequest"],
   connect: [],
