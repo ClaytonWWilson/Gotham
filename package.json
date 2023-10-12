@@ -10,10 +10,12 @@
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
+    "@playwright/test": "^1.39.0",
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
     "@rollup/plugin-typescript": "^8.0.0",
     "@tsconfig/svelte": "^2.0.1",
+    "@types/node": "^20.8.4",
     "@types/tampermonkey": "^4.0.0",
     "magic-string": "^0.25.7",
     "rollup": "^2.3.4",
