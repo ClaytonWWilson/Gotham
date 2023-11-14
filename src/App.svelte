@@ -25,6 +25,20 @@
   };
 
   onMount(() => (popperContent.style.display = "none"));
+
+  // Hides the popover when the user clicks outside of it
+  document.addEventListener("click", (event) => {
+    let node = event.target as HTMLElement;
+
+    while (node != document.body) {
+      if (node.id === rootId) {
+        return;
+      }
+      node = node.parentElement;
+    }
+
+    popperContent.style.display = "none";
+  });
 </script>
 
 <div id={rootId}>
