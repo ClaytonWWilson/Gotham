@@ -1,4 +1,4 @@
-import type { APIRequest } from "../types/api";
+import type { APIAction, APIRequest } from "../types/api";
 
 export async function sleepms(milliseconds: number) {
   await new Promise<void>((resolve, reject) => {
@@ -13,7 +13,7 @@ export async function sleepms(milliseconds: number) {
  * @param {Tampermonkey.Request.<object>} request The request to be sent
  * @returns {Tampermonkey.Response<object>} The response of GM_xmlhttpRequest whether it resolves or rejects
  */
-async function sendAsyncRequest(
+export async function sendAsyncRequest(
   request: Tampermonkey.Request
 ): Promise<Tampermonkey.Response<object>> {
   return new Promise((resolve, reject) => {
@@ -31,7 +31,7 @@ async function sendAsyncRequest(
   });
 }
 
-export async function sendApiRequest(
+async function sendApiRequest(
   params: APIRequest
 ): Promise<Tampermonkey.Response<object>> {
   return new Promise(async (resolve, reject) => {
@@ -83,4 +83,18 @@ export async function sendApiRequest(
 
     return reject(`Request failed after ${params.retries} retries`);
   });
+}
+
+export async function processAPIAction(
+  action: APIAction
+): Promise<Tampermonkey.Response<object>> {
+  action.startedAt = new Date();
+  action.status = "RUNNING";
+
+  const response = await sendApiRequest(action.request);
+
+  action.status = "COMPLETE";
+  action.finishedAt = new Date();
+
+  return response;
 }
