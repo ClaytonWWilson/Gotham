@@ -1,18 +1,21 @@
 <script lang="ts">
+  import QueueTabs from "../components/QueueTabs.svelte";
+  import QueueList from "../components/QueueList.svelte";
+  let selectedTab = "Queue";
 </script>
 
-<div id="container">
-  <div id="content">
-    Hello Popper!
-    <img
-      src="https://popper.js.org/static/popper-logo-394b4ea5914aad7fc580f418ed0cfb17.svg"
-      alt="Popper logo"
+<div class="container">
+  <div class="content">
+    <QueueTabs
+      on:tabclick={(e) => (selectedTab = e.detail.selected)}
+      bind:selected={selectedTab}
     />
+    <QueueList />
   </div>
 </div>
 
 <style>
-  #container {
+  /* #container {
     display: inline-block;
     background: #ffffff;
     color: #643045;
@@ -20,9 +23,9 @@
     padding: 5px 10px;
     font-size: 13px;
     border-radius: 4px;
-  }
+  } */
 
-  #content {
+  /* #content {
     border: 1px solid red;
     display: flex;
     justify-content: center;
@@ -31,5 +34,5 @@
     width: 300px;
     flex-direction: column;
     background-color: wheat;
-  }
+  } */
 </style>
