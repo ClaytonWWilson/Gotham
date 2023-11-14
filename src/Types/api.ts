@@ -1,7 +1,6 @@
-export type APIRequest = {
-  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+export interface APIRequest {
+  method: "GET" | "POST" | "HEAD";
   endpoint: string;
   retries?: number;
   payload?: {};
-  options?: {};
-};
+}
