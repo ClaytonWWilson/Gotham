@@ -1,10 +1,13 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import Main from "./components/Main.svelte";
   export let rootId: string;
 
   import { createPopper } from "@popperjs/core";
-  import { sleepms } from "./lib/utilites";
+  import NavBar from "./components/NavBar.svelte";
+  import Router, { link } from "svelte-spa-router";
+  import { routes } from "./routes.js";
+
+  let navTitle = "Gotham - Home";
 
   let gothamButton: HTMLElement;
   let popperContent: HTMLElement;
@@ -22,32 +25,46 @@
   };
 
   onMount(() => (popperContent.style.display = "none"));
-
-  const waitAndLog = (message: string, ms: number) => {
-    return new Promise<void>((resolve) => {
-      sleepms(ms).then(() => {
-        console.log(message);
-        resolve();
-      });
-    });
-  };
 </script>
 
 <div id={rootId}>
-  <button id="gotham-button" on:click={makePopper} bind:this={gothamButton}>
+  <button class="gotham-button" on:click={makePopper} bind:this={gothamButton}>
     Open
   </button>
-  <div id="popper-content" role="dialog" bind:this={popperContent}>
-    <Main />
+  <div class="popper-content" role="dialog" bind:this={popperContent}>
+    <NavBar title={navTitle}>
+      <a href="/" use:link on:click={() => (navTitle = "Gotham - Home")}>Home</a
+      >
+      <a
+        href="/addjob"
+        use:link
+        on:click={() => (navTitle = "Gotham - New Job")}>Add</a
+      >
+      <a
+        href="/settings"
+        use:link
+        on:click={() => (navTitle = "Gotham - Settings")}>Settings</a
+      >
+    </NavBar>
+    <Router {routes} />
   </div>
 </div>
 
 <style>
-  #gotham-button {
+  .gotham-button {
     display: inline-block;
   }
 
-  #popper-content {
+  .popper-content {
     z-index: 100;
+    display: inline-block;
+    background-color: #303030;
+    color: black;
+    font-weight: bold;
+    font-size: 13px;
+    border-radius: 4px;
+    height: 400px;
+    width: 350px;
+    margin-right: 10px;
   }
 </style>
