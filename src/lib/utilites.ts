@@ -1,4 +1,12 @@
-import type { APIAction, APIRequest } from "../types/api";
+import type {
+  APIAction,
+  APIRequest,
+  ChimeContactApiResponse,
+  ChimeRoomsAPIResponse,
+} from "../types/api";
+import { roomList, contactList } from "../stores";
+
+const CHIME_ROOMS_BASE_URL = "https://api.express.ue1.app.chime.aws/msg/rooms/";
 
 export async function sleepms(milliseconds: number) {
   await new Promise<void>((resolve, reject) => {
@@ -20,7 +28,6 @@ export async function sendAsyncRequest(
     GM_xmlhttpRequest({
       ...request,
       onload: (res) => {
-        console.log(res);
         if (res.status > 100 && res.status < 400) {
           resolve(res);
         } else {
@@ -75,6 +82,8 @@ async function sendApiRequest(
 
         return resolve(response);
       } catch (response) {
+        console.error("Request failed");
+        console.log(response);
         counter++;
 
         await sleepms(1000);
@@ -97,4 +106,71 @@ export async function processAPIAction(
   action.finishedAt = new Date();
 
   return response;
+}
+
+export async function fetchChimeRooms() {
+  roomList.set({ loading: true, rooms: [] });
+
+  let next: string | null = "";
+  while (next !== null && next !== undefined) {
+    const url = `${CHIME_ROOMS_BASE_URL}?next-token=${encodeURIComponent(
+      next
+    )}`;
+    const request: APIRequest = {
+      endpoint: url,
+      method: "GET",
+      retries: 5,
+    };
+
+    try {
+      const response = await sendApiRequest(request);
+      const responseJson: ChimeRoomsAPIResponse = JSON.parse(
+        response.responseText
+      );
+      console.log(responseJson);
+      roomList.update((prev) => {
+        prev.rooms.push(...responseJson.Rooms);
+        return prev;
+      });
+
+      await sleepms(1000);
+      next = responseJson.NextToken;
+    } catch (error) {
+      console.error(error);
+      break;
+    }
+  }
+
+  roomList.update((prev) => {
+    prev.loading = false;
+    return prev;
+  });
+}
+
+export async function fetchChimeContacts() {
+  contactList.set({ loading: true, contacts: [] });
+  try {
+    const request: APIRequest = {
+      endpoint: "https://api.express.ue1.app.chime.aws/bazl/contacts",
+      method: "GET",
+      retries: 5,
+    };
+
+    const response = await sendApiRequest(request);
+    const responseJson: ChimeContactApiResponse = JSON.parse(
+      response.responseText
+    );
+
+    contactList.update((prev) => {
+      prev.contacts.push(...responseJson);
+      return prev;
+    });
+  } catch (error) {
+    console.error(error);
+  }
+
+  contactList.update((prev) => {
+    prev.loading = false;
+    return prev;
+  });
 }

@@ -6,6 +6,7 @@
   import NavBar from "./components/NavBar.svelte";
   import Router, { link } from "svelte-spa-router";
   import { routes } from "./routes.js";
+  import { fetchChimeContacts, fetchChimeRooms } from "./lib/utilites";
 
   let navTitle = "Gotham - Home";
 
@@ -39,6 +40,9 @@
 
     popperContent.style.display = "none";
   });
+
+  fetchChimeRooms();
+  fetchChimeContacts();
 </script>
 
 <div id={rootId}>
@@ -77,7 +81,7 @@
     font-weight: bold;
     font-size: 13px;
     border-radius: 4px;
-    height: 400px;
+    height: 450px;
     width: 350px;
     margin-right: 10px;
   }

@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import { plannedQueue } from "../stores";
 
   export let selected;
 
@@ -18,7 +19,7 @@
     tabindex="-1"
     on:keydown={() => {}}
   >
-    Queue (0)
+    Queue ({$plannedQueue.length})
   </div>
   <div
     class={`${selected == "Running" ? "selected" : ""}`}
