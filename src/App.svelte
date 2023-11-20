@@ -32,7 +32,7 @@
     let node = event.target as HTMLElement;
 
     while (node != document.body) {
-      if (node.id === rootId) {
+      if (node.id && node.id === rootId) {
         return;
       }
       node = node.parentElement;
