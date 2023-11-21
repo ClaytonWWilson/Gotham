@@ -1,25 +1,25 @@
-<script>
+<script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { plannedQueue } from "../stores";
+  import { plannedQueue, runningQueue } from "../stores";
 
-  export let selected;
+  export let selected: string;
 
   const dispatch = createEventDispatcher();
 
-  const tabClickHandler = (selected) => {
-    dispatch("tabclick", { selected });
-  };
+  function tabClickHandler(s: string) {
+    dispatch("tabclick", { selected: s });
+  }
 </script>
 
 <section>
   <div
-    class={`${selected == "Queue" ? "selected" : ""}`}
-    on:click={() => tabClickHandler("Queue")}
+    class={`${selected == "Planned" ? "selected" : ""}`}
+    on:click={() => tabClickHandler("Planned")}
     role="button"
     tabindex="-1"
     on:keydown={() => {}}
   >
-    Queue ({$plannedQueue.length})
+    Planned ({$plannedQueue.length})
   </div>
   <div
     class={`${selected == "Running" ? "selected" : ""}`}
@@ -28,7 +28,7 @@
     tabindex="-1"
     on:keydown={() => {}}
   >
-    Running (0)
+    Running ({$runningQueue.length})
   </div>
   <div
     class={`${selected == "Finished" ? "selected" : ""}`}

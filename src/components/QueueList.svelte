@@ -1,11 +1,18 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import type AwaitedQueueProcessor from "../lib/AwaitedQueueProcessor";
   import type { APIAction } from "../types/api";
 
   export let queue: AwaitedQueueProcessor<
     APIAction,
-    Tampermonkey.Response<object>
+    Tampermonkey.Response<object> | void
   >;
+
+  const dispatch = createEventDispatcher();
+
+  function deleteHandler(index: number) {
+    dispatch("delete", { index });
+  }
 </script>
 
 <section>
@@ -16,8 +23,8 @@
       <span
         class="item-delete"
         on:click={() => {
-          queue.removeAt(index);
-          queue = queue;
+          // queue.removeAt(index);
+          deleteHandler(index);
         }}
         on:keydown={() => {}}>Delete</span
       >

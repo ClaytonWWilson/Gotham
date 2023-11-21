@@ -1,9 +1,4 @@
-import type {
-  APIAction,
-  APIRequest,
-  ChimeContactApiResponse,
-  ChimeRoomsAPIResponse,
-} from "../types/api";
+import type { APIAction, APIRequest } from "../types/api";
 
 export async function sleepms(milliseconds: number) {
   await new Promise<void>((resolve, reject) => {
