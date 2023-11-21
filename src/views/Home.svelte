@@ -61,7 +61,9 @@
           $currentQueue = $currentQueue;
         }}>Clear Queue</button
       >
-      <button on:click={runPlanned}>Start Queue</button>
+      {#if selectedTab === "Planned"}
+        <button on:click={runPlanned}>Start Queue</button>
+      {/if}
     </div>
   </div>
 </div>
