@@ -2,16 +2,10 @@
   import { link } from "svelte-spa-router";
   import { contactList, roomList, plannedQueue } from "../stores";
   import type { APIAction, APIRequest } from "../types/api";
+  import { STATION_NAME_REGEX } from "../lib/utilites";
+  import type { JobChecklistItem } from "../types/ui";
 
-  const STATION_NAME_REGEX =
-    /^\s?((AMXL)?.?[A-Z]{3}[1-9]{1}.?.?(-|–).?.Central[\s]?Ops.?(-|–).?[A-Za-z]+)|DON3 - East - Central Ops$/g;
-  type RoomsChecklistItem = {
-    name: string;
-    id: string;
-    checked: boolean;
-  };
-
-  let roomsChecklist: RoomsChecklistItem[] = [];
+  let roomsChecklist: JobChecklistItem[] = [];
 
   roomList.subscribe((rooms) => {
     if (!rooms.loading) {
@@ -25,13 +19,7 @@
     }
   });
 
-  type ContactsChecklistItem = {
-    name: string;
-    id: string;
-    checked: boolean;
-  };
-
-  let contactsChecklist: ContactsChecklistItem[] = [];
+  let contactsChecklist: JobChecklistItem[] = [];
 
   contactList.subscribe((contacts) => {
     if (!contacts.loading) {
@@ -45,7 +33,7 @@
     }
   });
 
-  function roomSelectHandler(roomItem: RoomsChecklistItem) {
+  function roomSelectHandler(roomItem: JobChecklistItem) {
     roomItem.checked = !roomItem.checked;
 
     if (roomItem.checked) {
@@ -56,7 +44,7 @@
     roomsChecklist = roomsChecklist;
   }
 
-  function contactSelectHandler(contactItem: ContactsChecklistItem) {
+  function contactSelectHandler(contactItem: JobChecklistItem) {
     contactItem.checked = !contactItem.checked;
 
     if (contactItem.checked) {
@@ -67,22 +55,19 @@
     contactsChecklist = contactsChecklist;
   }
 
-  function selectAll(list: RoomsChecklistItem[] | ContactsChecklistItem[]) {
+  function selectAll(list: JobChecklistItem[]) {
     for (let i = 0; i < list.length; i++) {
       list[i].checked = true;
     }
   }
 
-  function selectNone(list: RoomsChecklistItem[] | ContactsChecklistItem[]) {
+  function selectNone(list: JobChecklistItem[]) {
     for (let i = 0; i < list.length; i++) {
       list[i].checked = false;
     }
   }
 
-  function selectRegex(
-    list: RoomsChecklistItem[] | ContactsChecklistItem[],
-    regex: RegExp
-  ) {
+  function selectRegex(list: JobChecklistItem[], regex: RegExp) {
     for (let i = 0; i < list.length; i++) {
       if (list[i].name.match(regex)) {
         list[i].checked = true;
