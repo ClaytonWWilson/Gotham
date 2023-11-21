@@ -19,8 +19,6 @@
     >
   >;
 
-  $: console.log(selectedTab);
-
   $: switch (selectedTab) {
     case "Planned":
       currentQueue = plannedQueue;

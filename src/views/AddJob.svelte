@@ -1,4 +1,5 @@
 <script>
+  import HideRoom from "../components/HideRoom.svelte";
   import InviteToRoom from "../components/InviteToRoom.svelte";
   let selected = "Invite to rooms";
 </script>
@@ -16,7 +17,7 @@
 {:else if selected === "Remove from rooms"}
   <p>Show UI to remove person from rooms</p>
 {:else if selected === "Hide chime rooms"}
-  <p>Show UI to hide rooms</p>
+  <HideRoom />
 {/if}
 
 <style>
