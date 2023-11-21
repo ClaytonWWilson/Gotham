@@ -66,3 +66,24 @@ export const roomList = writable({ rooms: [], loading: false });
  * @type import("svelte/store").Writable.<import("./types/api").AppChimeContacts>
  */
 export const contactList = writable({ contacts: [], loading: false });
+
+/**
+ * @type import("./types/state").AppSettings | null
+ */
+let parsedSettings = JSON.parse(localStorage.getItem("gothamSettings"));
+
+if (!parsedSettings) {
+  parsedSettings = {
+    autoHideEnabled: false,
+    autoHideRooms: new Set(),
+    autoHidewaitMinutes: 5,
+  };
+}
+
+// Convert parsed list into set
+parsedSettings.autoHideRooms = new Set(parsedSettings.autoHideRooms);
+
+/**
+ * @type import("svelte/store").Writable<import("./types/state").AppSettings>
+ */
+export const settings = writable(parsedSettings);

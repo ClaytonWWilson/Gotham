@@ -41,7 +41,7 @@
     $runningQueue = $runningQueue;
   }
 
-  function deleteHandler(e) {
+  function deleteHandler(e: { detail: { index: number } }) {
     $currentQueue.removeAt(e.detail.index);
     $currentQueue = $currentQueue;
   }

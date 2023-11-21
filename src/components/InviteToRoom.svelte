@@ -154,7 +154,7 @@
           <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
           <li on:click={() => roomSelectHandler(room)} on:keydown={() => {}}>
             <div style="display: flex; border-bottom: 1px solid gray;">
-              <input type="checkbox" value="testvalue" checked={room.checked} />
+              <input type="checkbox" checked={room.checked} />
               <span style="user-select: none;">{room.name}</span>
             </div>
           </li>
@@ -195,11 +195,7 @@
           on:keydown={() => {}}
         >
           <div style="display: flex; border-bottom: 1px solid gray;">
-            <input
-              type="checkbox"
-              value="testvalue"
-              checked={contact.checked}
-            />
+            <input type="checkbox" checked={contact.checked} />
             <span style="user-select: none;">{contact.name}</span>
           </div>
         </li>

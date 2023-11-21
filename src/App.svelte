@@ -7,6 +7,7 @@
   import Router, { link } from "svelte-spa-router";
   import { routes } from "./routes.js";
   import { fetchChimeContacts, fetchChimeRooms } from "./lib/fetchToState";
+  import { settings } from "./stores";
 
   let navTitle = "Gotham - Home";
 
@@ -43,6 +44,10 @@
 
   fetchChimeRooms();
   fetchChimeContacts();
+
+  settings.subscribe((newSettings) => {
+    localStorage.setItem("gothamSettings", JSON.stringify(newSettings));
+  });
 </script>
 
 <div id={rootId}>
