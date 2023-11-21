@@ -55,7 +55,12 @@
     />
     <QueueList queue={$currentQueue} on:delete={deleteHandler} />
     <div>
-      <button>Clear Queue</button>
+      <button
+        on:click={() => {
+          $currentQueue.drain();
+          $currentQueue = $currentQueue;
+        }}>Clear Queue</button
+      >
       <button on:click={runPlanned}>Start Queue</button>
     </div>
   </div>

@@ -102,3 +102,19 @@ export async function processAPIAction(
 
   return response;
 }
+
+export function trimString(
+  s: string,
+  maxLength: number,
+  cutoffString?: string
+) {
+  if (!cutoffString) {
+    cutoffString = "...";
+  }
+
+  if (s.length > maxLength) {
+    return s.substring(0, maxLength + 1) + cutoffString;
+  } else {
+    return s;
+  }
+}

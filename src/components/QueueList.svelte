@@ -2,6 +2,7 @@
   import { createEventDispatcher } from "svelte";
   import type AwaitedQueueProcessor from "../lib/AwaitedQueueProcessor";
   import type { APIAction, APIActionError } from "../types/api";
+  import { trimString } from "../lib/utilites";
 
   export let queue: AwaitedQueueProcessor<
     APIAction | APIActionError,
@@ -18,17 +19,14 @@
 <section>
   {#each queue.items as item, index}
     <div>
-      <span class="item-status">{item.status}</span>
-      <span class="item-message">{item.displayMessage}</span>
+      <span class="item-message">{trimString(item.displayMessage, 33)}</span>
       <span
         class="item-delete"
         on:click={() => {
-          // queue.removeAt(index);
           deleteHandler(index);
         }}
         on:keydown={() => {}}>Delete</span
       >
-      <span> {index}</span>
     </div>
   {/each}
 </section>
@@ -45,13 +43,9 @@
     width: 100%;
     column-gap: 5px;
     /* grid-template-columns: 10% 35% 5% 45%; */
-    grid-template-columns: 20% 60% 12% 8%;
+    grid-template-columns: 80% 20%;
     border: 1px solid black;
     height: 30px;
-  }
-
-  .item-status {
-    color: blue;
   }
 
   .item-message {
