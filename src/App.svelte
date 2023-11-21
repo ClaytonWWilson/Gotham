@@ -6,7 +6,7 @@
   import NavBar from "./components/NavBar.svelte";
   import Router, { link } from "svelte-spa-router";
   import { routes } from "./routes.js";
-  import { fetchChimeContacts, fetchChimeRooms } from "./lib/utilites";
+  import { fetchChimeContacts, fetchChimeRooms } from "./lib/fetchToState";
 
   let navTitle = "Gotham - Home";
 
