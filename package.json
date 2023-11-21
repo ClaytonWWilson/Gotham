@@ -2,8 +2,9 @@
   "name": "gotham",
   "version": "0.0.1",
   "description": "gotham",
-  "author": "Clayton Wilson",
+  "author": "Clayton Wilson and Cullen Henderson",
   "homepage": "https://github.com/ClaytonWWilson/scripts",
+  "license": "MIT",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
