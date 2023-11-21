@@ -104,6 +104,3 @@ export async function processAPIAction(
 
   return response;
 }
-
-
-}
