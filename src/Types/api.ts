@@ -9,10 +9,14 @@ export interface APIAction {
   request: APIRequest;
   action: "HIDE" | "INVITE";
   displayMessage: string;
-  status: "CREATED" | "QUEUED" | "WAITING" | "RUNNING" | "COMPLETE";
+  status: "CREATED" | "QUEUED" | "WAITING" | "RUNNING" | "COMPLETE" | "FAILED";
   createdAt: Date;
   startedAt?: Date;
   finishedAt?: Date;
+}
+
+export interface APIActionError extends APIAction {
+  error: string;
 }
 
 export interface ChimeRoom {

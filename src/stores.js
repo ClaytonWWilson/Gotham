@@ -8,7 +8,7 @@ const API_WAIT_TIME_MS = 1000;
  * @type import("svelte/store").Writable.<AwaitedQueueProcessor.<import("./types/api").APIAction, void>>
  */
 export const plannedQueue = writable(
-  new AwaitedQueueProcessor(async (_a) => {}, API_WAIT_TIME_MS)
+  new AwaitedQueueProcessor(async (_a) => {}, 0)
 );
 
 /**
@@ -16,13 +16,29 @@ export const plannedQueue = writable(
  */
 export const runningQueue = writable(
   new AwaitedQueueProcessor(async (action, index) => {
-    const response = await processAPIAction(action);
+    let response;
+    try {
+      response = await processAPIAction(action);
+      finishedQueue.update((prev) => {
+        prev.enqueue(action);
+        return prev;
+      });
+    } catch (error) {
+      failedQueue.update((prev) => {
+        action.status = "FAILED";
+        const actionError = {
+          ...action,
+          error: error + "",
+        };
+        prev.enqueue(actionError);
+        console.log("Error occurred", actionError);
+        return prev;
+      });
+    }
 
     // Update this list for subscribers
     runningQueue.update((prev) => prev);
 
-    // TODO: Move failed to failed queue
-    // TODO: Moved finished to finished
     return response;
   }, API_WAIT_TIME_MS)
 );
@@ -31,14 +47,14 @@ export const runningQueue = writable(
  * @type import("svelte/store").Writable.<AwaitedQueueProcessor.<import("./types/api").APIAction, void>>
  */
 export const finishedQueue = writable(
-  new AwaitedQueueProcessor(async (_a) => {}, API_WAIT_TIME_MS)
+  new AwaitedQueueProcessor(async (_a) => {}, 0)
 );
 
 /**
- * @type import("svelte/store").Writable.<AwaitedQueueProcessor.<import("./types/api").APIAction, void>>
+ * @type import("svelte/store").Writable.<AwaitedQueueProcessor.<import("./types/api").APIActionError, void>>
  */
 export const failedQueue = writable(
-  new AwaitedQueueProcessor(async (_a) => {}, API_WAIT_TIME_MS)
+  new AwaitedQueueProcessor(async (_a) => {}, 0)
 );
 
 /**

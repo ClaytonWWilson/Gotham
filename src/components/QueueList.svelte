@@ -1,10 +1,10 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import type AwaitedQueueProcessor from "../lib/AwaitedQueueProcessor";
-  import type { APIAction } from "../types/api";
+  import type { APIAction, APIActionError } from "../types/api";
 
   export let queue: AwaitedQueueProcessor<
-    APIAction,
+    APIAction | APIActionError,
     Tampermonkey.Response<object> | void
   >;
 

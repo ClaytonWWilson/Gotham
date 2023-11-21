@@ -27,7 +27,6 @@ export async function fetchChimeRooms() {
       const responseJson: ChimeRoomsAPIResponse = JSON.parse(
         response.responseText
       );
-      console.log(responseJson);
       roomList.update((prev) => {
         prev.rooms.push(...responseJson.Rooms);
         return prev;

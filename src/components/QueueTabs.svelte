@@ -1,6 +1,11 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { plannedQueue, runningQueue } from "../stores";
+  import {
+    plannedQueue,
+    runningQueue,
+    finishedQueue,
+    failedQueue,
+  } from "../stores";
 
   export let selected: string;
 
@@ -37,7 +42,7 @@
     tabindex="-1"
     on:keydown={() => {}}
   >
-    Finished (0)
+    Finished ({$finishedQueue.length})
   </div>
   <div
     class={`${selected == "Failed" ? "selected" : ""}`}
@@ -46,7 +51,7 @@
     tabindex="-1"
     on:keydown={() => {}}
   >
-    Failed (0)
+    Failed ({$failedQueue.length})
   </div>
 </section>
 

@@ -1,14 +1,22 @@
 <script lang="ts">
   import QueueTabs from "../components/QueueTabs.svelte";
   import QueueList from "../components/QueueList.svelte";
-  import { plannedQueue, runningQueue } from "../stores";
-  import type { APIAction } from "../types/api";
+  import {
+    failedQueue,
+    finishedQueue,
+    plannedQueue,
+    runningQueue,
+  } from "../stores";
+  import type { APIAction, APIActionError } from "../types/api";
   import type { Writable } from "svelte/store";
   import type AwaitedQueueProcessor from "../lib/AwaitedQueueProcessor";
   let selectedTab = "Planned";
 
   let currentQueue: Writable<
-    AwaitedQueueProcessor<APIAction, Tampermonkey.Response<object> | void>
+    AwaitedQueueProcessor<
+      APIAction | APIActionError,
+      Tampermonkey.Response<object> | void
+    >
   >;
 
   $: console.log(selectedTab);
@@ -19,6 +27,12 @@
       break;
     case "Running":
       currentQueue = runningQueue;
+      break;
+    case "Finished":
+      currentQueue = finishedQueue;
+      break;
+    case "Failed":
+      currentQueue = failedQueue;
       break;
   }
 
