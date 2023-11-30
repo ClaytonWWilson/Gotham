@@ -50,7 +50,7 @@ export default {
             console.log(data);
           }
         );
-
+        css = css.replace(/\r/g, "").replace(/\n/g, "");
         magicString.prepend(`GM_addStyle("${css}");\n`);
 
         const result = { code: magicString.toString() };
