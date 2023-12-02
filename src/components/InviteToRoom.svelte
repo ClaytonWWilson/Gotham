@@ -107,100 +107,125 @@
     }
   }
 
+  $: filteredRoomCheckList = roomsChecklist.filter((room) => {
+    if (!roomSearch) return true;
+
+    return room.name.toLowerCase().match(roomSearch.toLowerCase());
+  });
+
+  $: filteredContactChecklist = contactsChecklist.filter((contact) => {
+    if (!contactSearch) return true;
+
+    return contact.name.toLowerCase().match(contactSearch.toLowerCase());
+  });
+
   let selectedRoomsCount = 0;
   let selectedContactsCount = 0;
+  let roomSearch: string | undefined;
+  let contactSearch: string | undefined;
 </script>
 
 <div class="invite-container">
-  <h3>Rooms: {roomsChecklist.length}</h3>
-  <div>
-    <span style="font-size: 8pt; color: gray; border: 1px solid gold;"
-      >selected: {selectedRoomsCount}</span
-    >
-    <div style="float:right;">
-      <button
-        on:click={() => {
-          selectAll(roomsChecklist);
-          selectedRoomsCount = roomsChecklist.length;
-          roomsChecklist = roomsChecklist;
-        }}>All</button
-      >
-      <button
-        on:click={() => {
-          selectNone(roomsChecklist);
-          selectedRoomsCount = 0;
-          roomsChecklist = roomsChecklist;
-        }}>None</button
-      >
-      <button
-        on:click={() => {
-          selectRegex(roomsChecklist, STATION_NAME_REGEX);
-          selectedRoomsCount = roomsChecklist.filter(
-            (room) => room.checked
-          ).length;
-          roomsChecklist = roomsChecklist;
-        }}>Stations</button
-      >
-    </div>
-  </div>
-  <div class="station-list">
-    {#if $roomList.loading}
-      Loaded {$roomList.rooms.length} rooms...
-    {:else}
-      <ul
-        style="list-style-type: none; padding-left: 0; margin-top: 0; margin-bottom: 0;"
-      >
-        {#each roomsChecklist as room}
-          <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-          <li on:click={() => roomSelectHandler(room)} on:keydown={() => {}}>
-            <div style="display: flex; border-bottom: 1px solid gray;">
-              <input type="checkbox" checked={room.checked} />
-              <span style="user-select: none;">{room.name}</span>
-            </div>
-          </li>
-        {/each}
-      </ul>
-    {/if}
-  </div>
-  <h3>Contacts: {contactsChecklist.length}</h3>
-  <div>
-    <span style="font-size: 8pt; color: gray; border: 1px solid gold;"
-      >selected: {selectedContactsCount}</span
-    >
-    <div style="float:right;">
-      <button
-        on:click={() => {
-          selectAll(contactsChecklist);
-          selectedContactsCount = contactsChecklist.length;
-          contactsChecklist = contactsChecklist;
-        }}>All</button
-      >
-      <button
-        on:click={() => {
-          selectNone(contactsChecklist);
-          selectedContactsCount = 0;
-          contactsChecklist = contactsChecklist;
-        }}>None</button
-      >
-    </div>
-  </div>
-  <div class="contact-list">
-    <ul
-      style="list-style-type: none; padding-left: 0; margin-top: 0; margin-bottom: 0;"
-    >
-      {#each contactsChecklist as contact}
-        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-        <li
-          on:click={() => contactSelectHandler(contact)}
-          on:keydown={() => {}}
+  <div class="lists-wrapper">
+    <div class="checklist-container">
+      <h3>Rooms: {roomsChecklist.length}</h3>
+      <div>
+        <span style="font-size: 8pt; color: gray; border: 1px solid gold;"
+          >selected: {selectedRoomsCount}</span
         >
-          <div style="display: flex; border-bottom: 1px solid gray;">
-            <input type="checkbox" checked={contact.checked} />
-            <span style="user-select: none;">{contact.name}</span>
-          </div>
-        </li>
-      {/each}
-    </ul>
+        <div style="float:right;">
+          <button
+            on:click={() => {
+              selectAll(roomsChecklist);
+              selectedRoomsCount = roomsChecklist.length;
+              roomsChecklist = roomsChecklist;
+            }}>All</button
+          >
+          <button
+            on:click={() => {
+              selectRegex(roomsChecklist, STATION_NAME_REGEX);
+              selectedRoomsCount = roomsChecklist.filter(
+                (room) => room.checked
+              ).length;
+              roomsChecklist = roomsChecklist;
+            }}>Stations</button
+          >
+          <button
+            on:click={() => {
+              selectNone(roomsChecklist);
+              selectedRoomsCount = 0;
+              roomsChecklist = roomsChecklist;
+            }}>None</button
+          >
+        </div>
+      </div>
+      <input type="search" class="search-input" bind:value={roomSearch} />
+      <div class="checkable-list">
+        {#if $roomList.loading}
+          Loaded {$roomList.rooms.length} rooms...
+        {:else}
+          <ul
+            style="list-style-type: none; padding-left: 0; margin-top: 0; margin-bottom: 0;"
+          >
+            {#each filteredRoomCheckList as room}
+              <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+              <li
+                on:click={() => roomSelectHandler(room)}
+                on:keydown={() => {}}
+              >
+                <div style="display: flex; border-bottom: 1px solid gray;">
+                  <input type="checkbox" checked={room.checked} />
+                  <span style="user-select: none;">{room.name}</span>
+                </div>
+              </li>
+            {/each}
+          </ul>
+        {/if}
+      </div>
+    </div>
+    <div class="checklist-container">
+      <h3>Contacts: {contactsChecklist.length}</h3>
+      <div>
+        <span style="font-size: 8pt; color: gray;"
+          >selected: {selectedContactsCount}</span
+        >
+        <div style="float:right;">
+          <button
+            on:click={() => {
+              selectAll(contactsChecklist);
+              selectedContactsCount = contactsChecklist.length;
+              contactsChecklist = contactsChecklist;
+            }}>All</button
+          >
+          <button
+            on:click={() => {
+              selectNone(contactsChecklist);
+              selectedContactsCount = 0;
+              contactsChecklist = contactsChecklist;
+            }}>None</button
+          >
+        </div>
+      </div>
+      <input type="search" class="search-input" bind:value={contactSearch} />
+      <div class="checkable-list">
+        <ul
+          style="list-style-type: none; padding-left: 0; margin-top: 0; margin-bottom: 0;"
+        >
+          {#each filteredContactChecklist as contact}
+            <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+            <li
+              on:click={() => contactSelectHandler(contact)}
+              on:keydown={() => {}}
+            >
+              <div style="display: flex; border-bottom: 1px solid gray;">
+                <input type="checkbox" checked={contact.checked} />
+                <span style="user-select: none;">{contact.name}</span>
+              </div>
+            </li>
+          {/each}
+        </ul>
+      </div>
+    </div>
   </div>
   <span
     >Inviting {selectedContactsCount} people to {selectedRoomsCount} rooms: {selectedContactsCount *
@@ -215,39 +240,54 @@
   h3 {
     margin-top: 0px;
     margin-bottom: 0px;
-    /* text-align: center; */
   }
 
   .invite-container {
     color: white;
-    display: flex;
-    flex-direction: column;
-    /* border: 2px solid orange; */
-    flex-grow: 1;
+    min-height: 100%;
+    display: grid;
+    grid-template-rows: auto 20px 20px;
+    width: 100%;
   }
 
-  .invite-link {
+  /* .invite-link {
     margin-top: auto;
     display: block;
-  }
+  } */
 
   .invite-link > button {
     width: 100%;
   }
 
-  .station-list {
-    /* border: 2px solid red; */
-    height: 130px;
-    overflow-y: scroll;
-  }
-
-  .contact-list {
-    /* border: 2px solid red; */
-    height: 130px;
-    overflow-y: scroll;
+  .checkable-list {
+    max-height: 100%;
+    overflow-y: auto;
   }
 
   ul {
     cursor: pointer;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .checklist-container {
+    width: 100%;
+    min-height: 100%;
+    display: grid;
+    grid-template-rows: 20px 20px 20px auto;
+  }
+
+  .lists-wrapper {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 20px;
+    min-height: 100%;
+  }
+
+  .search-input {
+    width: 100%;
+    color: white;
   }
 </style>
