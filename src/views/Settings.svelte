@@ -61,94 +61,112 @@
 
     $settings = $settings;
   }
+
+  $: filteredRoomCheckList = roomsChecklist.filter((room) => {
+    if (!roomSearch) return true;
+
+    return room.name.toLowerCase().match(roomSearch.toLowerCase());
+  });
+
+  let roomSearch: string | undefined;
 </script>
 
-<div style="display: flex; border-bottom: 1px solid gray;">
-  <input
-    type="checkbox"
-    checked={false}
-    bind:this={autoHideInput}
-    on:change={() => ($settings.autoHideEnabled = autoHideInput.checked)}
-  />
-  <span
-    style="user-select: none;"
-    on:click={() => {
-      autoHideInput.checked = !autoHideInput.checked;
-      $settings.autoHideEnabled = autoHideInput.checked;
-    }}
-    on:keydown={() => {}}>Auto-hide rooms</span
-  >
-  <select
-    value={$settings.autoHidewaitMinutes.toString()}
-    on:change={(e) =>
-      ($settings.autoHidewaitMinutes = parseInt(e.target.value))}
-  >
-    <option value="5">5 min</option>
-    <option value="10">10 min</option>
-    <option value="15">15 min</option>
-    <option value="20">20 min</option>
-  </select>
-  <button
-    on:click={() => (autoHideRoomsListVisible = !autoHideRoomsListVisible)}
-    >Configure</button
-  >
-</div>
-<div class="auto-hide-rooms-container">
-  {#if autoHideRoomsListVisible}
-    <h3>Rooms: {roomsChecklist.length}</h3>
-    <div>
-      <span style="font-size: 8pt; color: gray;"
-        >selected: {selectedRoomsCount}</span
-      >
-      <div style="float:right;">
-        <button
-          on:click={() => {
-            selectAll(roomsChecklist);
-            selectedRoomsCount = roomsChecklist.length;
-            roomsChecklist = roomsChecklist;
-          }}>All</button
+<div class="container">
+  <div style="display: flex; border-bottom: 1px solid gray;">
+    <input
+      type="checkbox"
+      checked={false}
+      bind:this={autoHideInput}
+      on:change={() => ($settings.autoHideEnabled = autoHideInput.checked)}
+    />
+    <span
+      style="user-select: none;"
+      on:click={() => {
+        autoHideInput.checked = !autoHideInput.checked;
+        $settings.autoHideEnabled = autoHideInput.checked;
+      }}
+      on:keydown={() => {}}>Auto-hide rooms</span
+    >
+    <select
+      value={$settings.autoHidewaitMinutes.toString()}
+      on:change={(e) =>
+        ($settings.autoHidewaitMinutes = parseInt(e.target.value))}
+    >
+      <option value="5">5 min</option>
+      <option value="10">10 min</option>
+      <option value="15">15 min</option>
+      <option value="20">20 min</option>
+    </select>
+    <button
+      on:click={() => (autoHideRoomsListVisible = !autoHideRoomsListVisible)}
+      >Configure</button
+    >
+  </div>
+  <div class="auto-hide-rooms-container">
+    {#if autoHideRoomsListVisible}
+      <h3>Rooms: {roomsChecklist.length}</h3>
+      <div>
+        <span style="font-size: 8pt; color: gray;"
+          >selected: {selectedRoomsCount}</span
         >
-        <button
-          on:click={() => {
-            selectNone(roomsChecklist);
-            selectedRoomsCount = 0;
-            roomsChecklist = roomsChecklist;
-          }}>None</button
-        >
-        <button
-          on:click={() => {
-            selectRegex(roomsChecklist, STATION_NAME_REGEX);
-            selectedRoomsCount = roomsChecklist.filter(
-              (room) => room.checked
-            ).length;
-            roomsChecklist = roomsChecklist;
-          }}>Stations</button
-        >
+        <div style="float:right;">
+          <button
+            on:click={() => {
+              selectAll(roomsChecklist);
+              selectedRoomsCount = roomsChecklist.length;
+              roomsChecklist = roomsChecklist;
+            }}>All</button
+          >
+          <button
+            on:click={() => {
+              selectNone(roomsChecklist);
+              selectedRoomsCount = 0;
+              roomsChecklist = roomsChecklist;
+            }}>None</button
+          >
+          <button
+            on:click={() => {
+              selectRegex(roomsChecklist, STATION_NAME_REGEX);
+              selectedRoomsCount = roomsChecklist.filter(
+                (room) => room.checked
+              ).length;
+              roomsChecklist = roomsChecklist;
+            }}>Stations</button
+          >
+        </div>
       </div>
-    </div>
-    <div class="station-list">
-      {#if $roomList.loading}
-        Loaded {$roomList.rooms.length} rooms...
-      {:else}
-        <ul
-          style="list-style-type: none; padding-left: 0; margin-top: 0; margin-bottom: 0;"
-        >
-          {#each roomsChecklist as room}
-            <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-            <li on:click={() => roomSelectHandler(room)} on:keydown={() => {}}>
-              <div style="display: flex; border-bottom: 1px solid gray;">
-                <input type="checkbox" checked={room.checked} />
-                <span style="user-select: none;">{room.name}</span>
-              </div>
-            </li>
-          {/each}
-        </ul>
-      {/if}
-    </div>
-  {/if}
+      <input type="search" class="search-input" bind:value={roomSearch} />
+      <div class="station-list">
+        {#if $roomList.loading}
+          Loaded {$roomList.rooms.length} rooms...
+        {:else}
+          <ul
+            style="list-style-type: none; padding-left: 0; margin-top: 0; margin-bottom: 0;"
+          >
+            {#each filteredRoomCheckList as room}
+              <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+              <li
+                on:click={() => roomSelectHandler(room)}
+                on:keydown={() => {}}
+              >
+                <div style="display: flex; border-bottom: 1px solid gray;">
+                  <input type="checkbox" checked={room.checked} />
+                  <span style="user-select: none;">{room.name}</span>
+                </div>
+              </li>
+            {/each}
+          </ul>
+        {/if}
+      </div>
+    {/if}
+  </div>
 </div>
 
 <style>
+  .container {
+    color: white;
+  }
+
   h3 {
     margin-top: 0px;
     margin-bottom: 0px;
@@ -157,7 +175,7 @@
 
   .station-list {
     /* border: 2px solid red; */
-    height: 130px;
+    height: 200px;
     overflow-y: scroll;
   }
 
@@ -166,7 +184,6 @@
   }
 
   .auto-hide-rooms-container {
-    color: white;
     display: flex;
     flex-direction: column;
     /* border: 2px solid orange; */
