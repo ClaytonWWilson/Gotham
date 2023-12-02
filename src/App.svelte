@@ -138,7 +138,7 @@
 
   .modal-content {
     display: grid;
-    grid-template-rows: 60px 40px auto;
+    grid-template-rows: 60px auto;
     position: absolute;
     top: 50%;
     left: 50%;

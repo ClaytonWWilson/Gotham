@@ -35,7 +35,6 @@
   section {
     overflow-y: scroll;
     overflow-x: hidden;
-    height: 100%;
   }
 
   div {

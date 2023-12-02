@@ -48,28 +48,30 @@
 </script>
 
 <div class="container">
-  <div class="content">
-    <QueueTabs
-      on:tabclick={(e) => (selectedTab = e.detail.selected)}
-      bind:selected={selectedTab}
-    />
-    <QueueList queue={$currentQueue} on:delete={deleteHandler} />
-    <div>
-      <button
-        on:click={() => {
-          $currentQueue.drain();
-          $currentQueue = $currentQueue;
-        }}>Clear Queue</button
-      >
-      {#if selectedTab === "Planned"}
-        <button on:click={runPlanned}>Start Queue</button>
-      {/if}
-    </div>
+  <QueueTabs
+    on:tabclick={(e) => (selectedTab = e.detail.selected)}
+    bind:selected={selectedTab}
+  />
+  <QueueList queue={$currentQueue} on:delete={deleteHandler} />
+  <div style="padding-top: 10px;">
+    <button
+      on:click={() => {
+        $currentQueue.drain();
+        $currentQueue = $currentQueue;
+      }}>Clear Queue</button
+    >
+    {#if selectedTab === "Planned"}
+      <button on:click={runPlanned}>Start Queue</button>
+    {/if}
   </div>
 </div>
 
 <style>
-  .content {
-    height: 320px;
+  .container {
+    display: grid;
+    grid-template-rows: 30px auto 30px;
+    width: 100%;
+    max-height: 100%;
+    min-height: 100%;
   }
 </style>

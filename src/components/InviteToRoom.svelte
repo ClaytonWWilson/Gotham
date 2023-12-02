@@ -208,9 +208,7 @@
       </div>
       <input type="search" class="search-input" bind:value={contactSearch} />
       <div class="checkable-list">
-        <ul
-          style="list-style-type: none; padding-left: 0; margin-top: 0; margin-bottom: 0;"
-        >
+        <ul>
           {#each filteredContactChecklist as contact}
             <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
             <li
@@ -266,9 +264,10 @@
 
   ul {
     cursor: pointer;
-    padding: 0;
-    margin: 0;
-    list-style: none;
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 0;
+    margin-bottom: 0;
   }
 
   .checklist-container {
