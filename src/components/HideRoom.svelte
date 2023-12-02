@@ -82,7 +82,7 @@
 <div class="invite-container">
   <h3>Rooms: {roomsChecklist.length}</h3>
   <div>
-    <span style="font-size: 8pt; color: gray; border: 1px solid gold;"
+    <span style="font-size: 8pt; color: gray;"
       >selected: {selectedRoomsCount}</span
     >
     <div style="float:right;">
