@@ -88,7 +88,7 @@ export async function processAPIAction(
   return response;
 }
 
-export function trimString(
+export function truncateString(
   s: string,
   maxLength: number,
   cutoffString?: string

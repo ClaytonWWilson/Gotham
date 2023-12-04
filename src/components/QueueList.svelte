@@ -1,11 +1,11 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import type AwaitedQueueProcessor from "../lib/AwaitedQueueProcessor";
-  import type { APIAction, APIActionError } from "../types/api";
-  import { trimString } from "../lib/utilites";
+  import type { APIAction } from "../types/api";
+  import { truncateString } from "../lib/utilites";
 
   export let queue: AwaitedQueueProcessor<
-    APIAction | APIActionError,
+    APIAction,
     Tampermonkey.Response<object> | void
   >;
 
@@ -17,18 +17,23 @@
 </script>
 
 <section>
-  {#each queue.items as item, index}
-    <div>
-      <span class="item-message">{trimString(item.displayMessage, 33)}</span>
-      <span
-        class="item-delete"
-        on:click={() => {
-          deleteHandler(index);
-        }}
-        on:keydown={() => {}}>Delete</span
-      >
-    </div>
-  {/each}
+  <table>
+    {#each queue.items as item, index}
+      <tr class="item">
+        <td class="item-message">{truncateString(item.displayMessage, 80)}</td>
+        {#if item.error}
+          <td class="item-error">{truncateString(item.error, 30)}</td>
+        {/if}
+        <td
+          class="item-delete"
+          on:click={() => {
+            deleteHandler(index);
+          }}
+          on:keydown={() => {}}>Delete</td
+        >
+      </tr>
+    {/each}
+  </table>
 </section>
 
 <style>
@@ -37,18 +42,26 @@
     overflow-x: hidden;
   }
 
-  div {
-    display: grid;
+  table {
     width: 100%;
-    column-gap: 5px;
-    /* grid-template-columns: 10% 35% 5% 45%; */
-    grid-template-columns: 80% 20%;
+  }
+
+  .item {
+    padding-left: 10px;
+    padding-right: 10px;
     border: 1px solid black;
-    height: 30px;
+    padding-top: 2px;
+    padding-bottom: 2px;
   }
 
   .item-message {
     color: #fff;
+    width: 100%;
+  }
+
+  .item-error {
+    color: palevioletred;
+    width: 25%;
   }
 
   .item-delete {

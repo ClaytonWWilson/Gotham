@@ -7,16 +7,13 @@
     plannedQueue,
     runningQueue,
   } from "../stores";
-  import type { APIAction, APIActionError } from "../types/api";
+  import type { APIAction } from "../types/api";
   import type { Writable } from "svelte/store";
   import type AwaitedQueueProcessor from "../lib/AwaitedQueueProcessor";
   let selectedTab = "Planned";
 
   let currentQueue: Writable<
-    AwaitedQueueProcessor<
-      APIAction | APIActionError,
-      Tampermonkey.Response<object> | void
-    >
+    AwaitedQueueProcessor<APIAction, Tampermonkey.Response<object> | void>
   >;
 
   $: switch (selectedTab) {
@@ -45,6 +42,18 @@
     $currentQueue.removeAt(e.detail.index);
     $currentQueue = $currentQueue;
   }
+
+  function requeueFailed() {
+    $plannedQueue.enqueue(
+      ...$failedQueue.drain().map((item) => {
+        delete item.error;
+        item.status = "QUEUED";
+        return item;
+      })
+    );
+    $plannedQueue = $plannedQueue;
+    $failedQueue = $failedQueue;
+  }
 </script>
 
 <div class="container">
@@ -62,6 +71,10 @@
     >
     {#if selectedTab === "Planned"}
       <button on:click={runPlanned}>Start Queue</button>
+    {/if}
+
+    {#if selectedTab === "Failed"}
+      <button on:click={requeueFailed}>Requeue Failed</button>
     {/if}
   </div>
 </div>
