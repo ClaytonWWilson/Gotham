@@ -76,10 +76,17 @@
     }
   }
 
+  $: filteredRoomCheckList = roomsChecklist.filter((room) => {
+    if (!roomSearch) return true;
+
+    return room.name.toLowerCase().match(roomSearch.toLowerCase());
+  });
+
   let selectedRoomsCount = 0;
+  let roomSearch: string | undefined;
 </script>
 
-<div class="invite-container">
+<div class="hide-rooms-container">
   <h3>Rooms: {roomsChecklist.length}</h3>
   <div>
     <span style="font-size: 8pt; color: gray;"
@@ -111,6 +118,7 @@
       >
     </div>
   </div>
+  <input type="search" class="search-input" bind:value={roomSearch} />
   <div class="station-list">
     {#if $roomList.loading}
       Loaded {$roomList.rooms.length} rooms...
@@ -118,7 +126,7 @@
       <ul
         style="list-style-type: none; padding-left: 0; margin-top: 0; margin-bottom: 0;"
       >
-        {#each roomsChecklist as room}
+        {#each filteredRoomCheckList as room}
           <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
           <li on:click={() => roomSelectHandler(room)} on:keydown={() => {}}>
             <div style="display: flex; border-bottom: 1px solid gray;">
@@ -143,12 +151,16 @@
     /* text-align: center; */
   }
 
-  .invite-container {
+  input {
     color: white;
-    display: flex;
-    flex-direction: column;
-    /* border: 2px solid orange; */
-    flex-grow: 1;
+  }
+
+  .hide-rooms-container {
+    color: white;
+    display: grid;
+    width: 100%;
+    grid-template-rows: 20px 20px 20px auto 20px 20px;
+    min-height: 100%;
   }
 
   .hiding-link {
@@ -162,8 +174,8 @@
 
   .station-list {
     /* border: 2px solid red; */
-    height: 260px;
-    overflow-y: scroll;
+    height: 100%;
+    overflow-y: auto;
   }
 
   ul {
