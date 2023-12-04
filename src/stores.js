@@ -55,7 +55,6 @@ export const runningQueue = writable(
           action.status = "FAILED";
 
           prev.enqueue(action);
-          console.log("Error occurred", action);
           return prev;
         });
       }

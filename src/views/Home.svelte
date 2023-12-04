@@ -43,6 +43,18 @@
     $currentQueue = $currentQueue;
   }
 
+  async function stopRunning() {
+    await $runningQueue.stop();
+    $plannedQueue.enqueue(
+      ...$runningQueue.drain().map((item) => {
+        item.status = "QUEUED";
+        return item;
+      })
+    );
+    $plannedQueue = $plannedQueue;
+    $runningQueue = $runningQueue;
+  }
+
   function requeueFailed() {
     $plannedQueue.enqueue(
       ...$failedQueue.drain().map((item) => {
@@ -71,6 +83,10 @@
     >
     {#if selectedTab === "Planned"}
       <button on:click={runPlanned}>Start Queue</button>
+    {/if}
+
+    {#if selectedTab === "Running"}
+      <button on:click={stopRunning}>Stop</button>
     {/if}
 
     {#if selectedTab === "Failed"}
