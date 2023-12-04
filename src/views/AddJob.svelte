@@ -4,26 +4,35 @@
   let selected = "Invite to rooms";
 </script>
 
-<div class="select-container">
-  <select bind:value={selected}>
-    <option>Invite to rooms</option>
-    <option>Remove from rooms</option>
-    <option>Hide chime rooms</option>
-  </select>
-</div>
+<div class="new-job-container">
+  <div class="select-container">
+    <select bind:value={selected}>
+      <option>Invite to rooms</option>
+      <option>Remove from rooms</option>
+      <option>Hide chime rooms</option>
+    </select>
+  </div>
 
-{#if selected === "Invite to rooms"}
-  <InviteToRoom />
-{:else if selected === "Remove from rooms"}
-  <p>Show UI to remove person from rooms</p>
-{:else if selected === "Hide chime rooms"}
-  <HideRoom />
-{/if}
+  {#if selected === "Invite to rooms"}
+    <InviteToRoom />
+  {:else if selected === "Remove from rooms"}
+    <p>Show UI to remove person from rooms</p>
+  {:else if selected === "Hide chime rooms"}
+    <HideRoom />
+  {/if}
+</div>
 
 <style>
   .select-container {
     display: flex;
     height: 30px;
+  }
+
+  .new-job-container {
+    display: grid;
+    grid-template-rows: 30px auto;
+    min-height: 100%;
+    width: 100%;
   }
 
   select {
