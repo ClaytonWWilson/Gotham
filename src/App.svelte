@@ -81,6 +81,12 @@
           use:link
           on:click={() => (navTitle = "Gotham - Settings")}>Settings</a
         >
+        <button
+          on:click={() => {
+            fetchChimeRooms();
+            fetchChimeContacts();
+          }}>Refresh Data</button
+        >
       </NavBar>
       <Router {routes} />
     </div>
