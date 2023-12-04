@@ -49,10 +49,6 @@ export async function sendApiRequest(
 
     apiToken = `_aws_wt_session=${apiToken}`;
 
-    if (!params.retries) {
-      params.retries = 0;
-    }
-
     let requestParams: Tampermonkey.Request<object> = {
       url: params.endpoint,
       method: params.method,
@@ -69,23 +65,12 @@ export async function sendApiRequest(
       };
     }
 
-    let counter = 0;
-
-    while (counter <= params.retries) {
-      try {
-        const response = await sendAsyncRequest(requestParams);
-
-        return resolve(response);
-      } catch (response) {
-        console.error("Request failed");
-        console.log(response);
-        counter++;
-
-        await sleepms(1000);
-      }
+    try {
+      const response = await sendAsyncRequest(requestParams);
+      return resolve(response);
+    } catch (error) {
+      reject(error);
     }
-
-    return reject(`Request failed after ${params.retries} retries`);
   });
 }
 

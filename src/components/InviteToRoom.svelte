@@ -87,7 +87,6 @@
         let request: APIRequest = {
           endpoint: `https://api.express.ue1.app.chime.aws/msg/rooms/${room.id}/memberships/`,
           method: "POST",
-          retries: 5,
           payload: {
             RoomId: room.id,
             ProfileId: contact.id,
@@ -100,6 +99,7 @@
           createdAt: new Date(),
           displayMessage: `Invite ${contact.name} to ${room.name}`,
           status: "QUEUED",
+          retries: 5,
         };
 
         $plannedQueue.enqueue(action);

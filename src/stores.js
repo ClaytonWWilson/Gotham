@@ -16,6 +16,10 @@ export const plannedQueue = writable(
  */
 export const runningQueue = writable(
   new AwaitedQueueProcessor(async (action, index) => {
+    if (!action.retries) {
+      action.retries = 0;
+    }
+
     let response;
     try {
       response = await processAPIAction(action);
@@ -24,16 +28,43 @@ export const runningQueue = writable(
         return prev;
       });
     } catch (error) {
-      failedQueue.update((prev) => {
-        action.status = "FAILED";
-        const actionError = {
-          ...action,
-          error: error + "",
-        };
-        prev.enqueue(actionError);
-        console.log("Error occurred", actionError);
-        return prev;
-      });
+      console.log(error);
+      action.retries--;
+
+      let errorMessage = "";
+
+      if (!error.status) {
+        try {
+          errorMessage = error + "";
+        } catch (_err) {
+          errorMessage = "Error sending request";
+        }
+      } else {
+        switch (error.status) {
+          case 409:
+            errorMessage = "Already in room";
+            action.retries = -1;
+        }
+      }
+
+      if (action.retries >= 0) {
+        runningQueue.update((prev) => {
+          prev.enqueue(action);
+          return prev;
+        });
+      } else {
+        failedQueue.update((prev) => {
+          action.status = "FAILED";
+
+          let requestError = {
+            ...action,
+            error: errorMessage,
+          };
+          prev.enqueue(requestError);
+          console.log("Error occurred", requestError);
+          return prev;
+        });
+      }
     }
 
     // Update this list for subscribers

@@ -1,7 +1,6 @@
 export interface APIRequest {
   method: "GET" | "POST" | "HEAD";
   endpoint: string;
-  retries?: number;
   payload?: {};
 }
 
@@ -10,6 +9,7 @@ export interface APIAction {
   action: "HIDE" | "INVITE";
   displayMessage: string;
   status: "CREATED" | "QUEUED" | "WAITING" | "RUNNING" | "COMPLETE" | "FAILED";
+  retries?: number;
   createdAt: Date;
   startedAt?: Date;
   finishedAt?: Date;

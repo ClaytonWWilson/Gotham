@@ -59,7 +59,6 @@
       let request: APIRequest = {
         endpoint: `https://api.express.ue1.app.chime.aws/msg/rooms/${room.id}`,
         method: "POST",
-        retries: 5,
         payload: {
           RoomId: room.id,
           Visibility: "hidden",
@@ -71,6 +70,7 @@
         createdAt: new Date(),
         displayMessage: `Hide room ${room.name}`,
         status: "QUEUED",
+        retries: 5,
       };
       $plannedQueue.enqueue(action);
     }
