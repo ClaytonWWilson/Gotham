@@ -9,14 +9,11 @@ export interface APIAction {
   action: "HIDE" | "INVITE";
   displayMessage: string;
   status: "CREATED" | "QUEUED" | "WAITING" | "RUNNING" | "COMPLETE" | "FAILED";
+  error?: string;
   retries?: number;
   createdAt: Date;
   startedAt?: Date;
   finishedAt?: Date;
-}
-
-export interface APIActionError extends APIAction {
-  error: string;
 }
 
 export interface ChimeRoom {

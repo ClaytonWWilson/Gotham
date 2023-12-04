@@ -31,18 +31,16 @@ export const runningQueue = writable(
       console.log(error);
       action.retries--;
 
-      let errorMessage = "";
-
       if (!error.status) {
         try {
-          errorMessage = error + "";
+          action.error = error + "";
         } catch (_err) {
-          errorMessage = "Error sending request";
+          action.error = "Error sending request";
         }
       } else {
         switch (error.status) {
           case 409:
-            errorMessage = "Already in room";
+            action.error = "Already in room";
             action.retries = -1;
         }
       }
@@ -56,12 +54,8 @@ export const runningQueue = writable(
         failedQueue.update((prev) => {
           action.status = "FAILED";
 
-          let requestError = {
-            ...action,
-            error: errorMessage,
-          };
-          prev.enqueue(requestError);
-          console.log("Error occurred", requestError);
+          prev.enqueue(action);
+          console.log("Error occurred", action);
           return prev;
         });
       }
@@ -82,7 +76,7 @@ export const finishedQueue = writable(
 );
 
 /**
- * @type import("svelte/store").Writable.<AwaitedQueueProcessor.<import("./types/api").APIActionError, void>>
+ * @type import("svelte/store").Writable.<AwaitedQueueProcessor.<import("./types/api").APIAction, void>>
  */
 export const failedQueue = writable(
   new AwaitedQueueProcessor(async (_a) => {}, 0)
