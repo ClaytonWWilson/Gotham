@@ -1,7 +1,6 @@
 <script lang="ts">
   import { STATION_NAME_REGEX } from "../lib/utilites";
   import { roomList, settings } from "../stores";
-  let autoHideInput: HTMLInputElement;
   let autoHideRoomsListVisible = false;
   import type { JobChecklistItem } from "../types/ui";
 
@@ -74,21 +73,17 @@
     const selectEl = e.target as HTMLSelectElement;
     $settings.autoHideWaitMinutes = parseInt(selectEl.value);
   }
+
+  console.log($settings);
 </script>
 
 <div class="container">
-  <div style="display: flex; border-bottom: 1px solid gray;">
-    <input
-      type="checkbox"
-      checked={false}
-      bind:this={autoHideInput}
-      on:change={() => ($settings.autoHideEnabled = autoHideInput.checked)}
-    />
+  <div class="settings-row">
+    <input type="checkbox" bind:checked={$settings.autoHideEnabled} />
     <span
       style="user-select: none;"
       on:click={() => {
-        autoHideInput.checked = !autoHideInput.checked;
-        $settings.autoHideEnabled = autoHideInput.checked;
+        $settings.autoHideEnabled = !$settings.autoHideEnabled;
       }}
       on:keydown={() => {}}>Auto-hide rooms</span
     >
@@ -174,11 +169,15 @@
   h3 {
     margin-top: 0px;
     margin-bottom: 0px;
-    /* text-align: center; */
+  }
+
+  .settings-row {
+    display: flex;
+    border-bottom: 1px solid gray;
+    column-gap: 5px;
   }
 
   .station-list {
-    /* border: 2px solid red; */
     height: 200px;
     overflow-y: scroll;
   }
@@ -190,7 +189,6 @@
   .auto-hide-rooms-container {
     display: flex;
     flex-direction: column;
-    /* border: 2px solid orange; */
     flex-grow: 1;
   }
 
