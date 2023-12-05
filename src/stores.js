@@ -42,6 +42,10 @@ export const runningQueue = writable(
           case 409:
             action.error = "Already in room";
             action.retries = -1;
+            break;
+          case 401:
+            action.error = "Token expired, try again";
+            break;
         }
       }
 
