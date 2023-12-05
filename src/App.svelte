@@ -7,7 +7,9 @@
   import Router, { link } from "svelte-spa-router";
   import { routes } from "./routes.js";
   import { fetchChimeContacts, fetchChimeRooms } from "./lib/fetchToState";
-  import { settings } from "./stores";
+  import { runningQueue, settings } from "./stores";
+  import { getIntersection } from "./lib/utilites";
+  import type { APIAction, APIRequest } from "./types/api";
 
   let navTitle = "Gotham - Home";
 
@@ -42,8 +44,118 @@
   //   popperContent.style.display = "none";
   // });
 
+  async function autoHideRooms() {
+    const openHideableRooms = new Map<string, { joinedAt: Date }>();
+
+    window.addEventListener("locationchange", (e: Event) => {
+      const eventWindow = e.currentTarget as Window;
+      const currentUrl = eventWindow.location.href;
+      const enteredRoomId = currentUrl
+        .slice(currentUrl.lastIndexOf("/") + 1)
+        .replaceAll("/", "");
+
+      if (openHideableRooms.has(enteredRoomId)) {
+        openHideableRooms.set(enteredRoomId, { joinedAt: new Date() });
+      }
+    });
+
+    setInterval(
+      () => {
+        if (!$settings.autoHideEnabled) return;
+
+        const visibleRoomsContainerElement = document.querySelector(
+          "#app > div.LayoutRoute > div > nav > div.Sidebar__discussions > div.RoomList > div.SortableList"
+        );
+
+        if (!visibleRoomsContainerElement) {
+          console.error("Can't find Chime rooms list");
+          return;
+        }
+
+        const visibleRoomsElements = visibleRoomsContainerElement.children;
+        const visibleRoomIds = new Set<string>();
+        for (let i = 0; i < visibleRoomsElements.length; i++) {
+          const roomElement = visibleRoomsElements[i];
+          const anchor = roomElement.children[0] as
+            | HTMLAnchorElement
+            | undefined;
+
+          if (!anchor) {
+            console.error("Can't find channel link");
+            return;
+          }
+
+          const link = anchor.href;
+          const roomId = link
+            .slice(link.lastIndexOf("/") + 1)
+            .replaceAll("/", "");
+
+          visibleRoomIds.add(roomId);
+        }
+
+        let autoHideRoomIds = getIntersection(
+          visibleRoomIds,
+          $settings.autoHideRooms
+        );
+
+        const now = new Date();
+        const currentUrl = window.location.href;
+        const currentRoomId = currentUrl
+          .slice(currentUrl.lastIndexOf("/") + 1)
+          .replaceAll("/", "");
+        if (openHideableRooms.has(currentRoomId)) {
+          openHideableRooms.set(currentRoomId, { joinedAt: now });
+        }
+
+        autoHideRoomIds.forEach((roomId) => {
+          let stored: { joinedAt: Date } | undefined =
+            openHideableRooms.get(roomId);
+
+          if (!stored) {
+            stored = { joinedAt: now };
+            openHideableRooms.set(roomId, stored);
+          }
+
+          if (
+            now.valueOf() - stored.joinedAt.valueOf() >
+            $settings.autoHideWaitMinutes * 60 * 1000
+          ) {
+            let request: APIRequest = {
+              endpoint: `https://api.express.ue1.app.chime.aws/msg/rooms/${roomId}`,
+              method: "POST",
+              payload: {
+                RoomId: roomId,
+                Visibility: "hidden",
+              },
+            };
+            let action: APIAction = {
+              request,
+              action: "HIDE",
+              createdAt: new Date(),
+              displayMessage: `Auto-hide room ${roomId}`,
+              status: "QUEUED",
+              retries: 5,
+            };
+            $runningQueue.enqueue(action);
+          }
+        });
+
+        $runningQueue = $runningQueue;
+        $runningQueue.run();
+
+        openHideableRooms.forEach((_, storedId) => {
+          if (!autoHideRoomIds.has(storedId)) {
+            openHideableRooms.delete(storedId);
+          }
+        });
+      },
+      1 * 60 * 1000
+    );
+  }
+
   fetchChimeRooms();
   fetchChimeContacts();
+  autoHideRooms();
 
   settings.subscribe((newSettings) => {
     localStorage.setItem("gothamSettings", JSON.stringify(newSettings));

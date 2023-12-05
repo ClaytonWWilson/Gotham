@@ -69,6 +69,11 @@
   });
 
   let roomSearch: string | undefined;
+
+  function waitTimeChangeHandler(e: Event) {
+    const selectEl = e.target as HTMLSelectElement;
+    $settings.autoHideWaitMinutes = parseInt(selectEl.value);
+  }
 </script>
 
 <div class="container">
@@ -88,9 +93,8 @@
       on:keydown={() => {}}>Auto-hide rooms</span
     >
     <select
-      value={$settings.autoHidewaitMinutes.toString()}
-      on:change={(e) =>
-        ($settings.autoHidewaitMinutes = parseInt(e.target.value))}
+      value={String($settings.autoHideWaitMinutes)}
+      on:change={waitTimeChangeHandler}
     >
       <option value="5">5 min</option>
       <option value="10">10 min</option>
@@ -192,5 +196,9 @@
 
   select {
     color: #fff;
+  }
+
+  input {
+    color: white;
   }
 </style>

@@ -19,7 +19,6 @@ export async function fetchChimeRooms() {
     const request: APIRequest = {
       endpoint: url,
       method: "GET",
-      retries: 5,
     };
 
     try {
@@ -52,7 +51,6 @@ export async function fetchChimeContacts() {
     const request: APIRequest = {
       endpoint: "https://api.express.ue1.app.chime.aws/bazl/contacts",
       method: "GET",
-      retries: 5,
     };
 
     const response = await sendApiRequest(request);

@@ -50,4 +50,27 @@ bodyObserver.observe(document.body, {
   characterData: false,
 });
 
+// https://stackoverflow.com/questions/6390341/how-to-detect-if-url-has-changed-after-hash-in-javascript/52809105#52809105
+(() => {
+  let oldPushState = history.pushState;
+  history.pushState = function pushState() {
+    let ret = oldPushState.apply(this, arguments);
+    window.dispatchEvent(new Event("pushstate"));
+    window.dispatchEvent(new Event("locationchange"));
+    return ret;
+  };
+
+  let oldReplaceState = history.replaceState;
+  history.replaceState = function replaceState() {
+    let ret = oldReplaceState.apply(this, arguments);
+    window.dispatchEvent(new Event("replacestate"));
+    window.dispatchEvent(new Event("locationchange"));
+    return ret;
+  };
+
+  window.addEventListener("popstate", () => {
+    window.dispatchEvent(new Event("locationchange"));
+  });
+})();
+
 export default app;
