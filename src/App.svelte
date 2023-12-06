@@ -219,6 +219,10 @@
 </div>
 
 <style>
+  button {
+    color: white;
+  }
+
   .gotham-button {
     display: inline-block;
   }

@@ -161,6 +161,10 @@
 </div>
 
 <style>
+  button {
+    color: white;
+  }
+
   h3 {
     margin-top: 0px;
     margin-bottom: 0px;
