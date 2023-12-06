@@ -88,7 +88,7 @@
       on:keydown={() => {}}>Auto-hide rooms</span
     >
     <select
-      value={String($settings.autoHideWaitSeconds)}
+      value={String($settings.autoHideWaitSeconds / 60)}
       on:change={waitTimeChangeHandler}
     >
       <option value="5">5 min</option>
