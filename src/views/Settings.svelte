@@ -77,7 +77,11 @@
 <div class="container">
   <div class="settings-row">
     <span>Seconds between requests: </span>
-    <input type="number" bind:value={$settings.requestWaitSeconds} />
+    <input
+      class="request-wait"
+      type="number"
+      bind:value={$settings.requestWaitSeconds}
+    />
   </div>
   <div class="settings-row">
     <input type="checkbox" bind:checked={$settings.autoHideEnabled} />
@@ -199,10 +203,16 @@
     color: white;
   }
 
+  .request-wait {
+    width: 40px;
+  }
+
   .settings-row {
     display: flex;
     border-bottom: 1px solid gray;
     column-gap: 5px;
+    padding-bottom: 5px;
+    padding-top: 5px;
   }
 
   .station-list {

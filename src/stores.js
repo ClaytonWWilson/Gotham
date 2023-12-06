@@ -8,7 +8,7 @@ import { processAPIAction } from "./lib/utilites";
 const DEFAULT_SETTINGS = {
   autoHideEnabled: false,
   autoHideRooms: new Set(),
-  autoHideWaitSeconds: 5,
+  autoHideWaitSeconds: 5 * 60,
   requestWaitSeconds: 1,
 };
 
