@@ -4,7 +4,7 @@ import { sleepms } from "./utilites";
 export default class AwaitedQueueProcessor<T, U> implements Queue<T> {
   private queue: Queue<T>;
   private asynccallbackfn: (queueItem: T, index: number) => Promise<U>;
-  private waitms: number;
+  waitms: number;
   private stopped: boolean;
   private running: boolean;
   items: T[];

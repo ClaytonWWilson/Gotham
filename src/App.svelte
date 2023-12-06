@@ -157,10 +157,6 @@
   fetchChimeContacts();
   autoHideRooms();
 
-  settings.subscribe((newSettings) => {
-    localStorage.setItem("gothamSettings", JSON.stringify(newSettings));
-  });
-
   let appOpen = false;
 
   function toggleModal() {

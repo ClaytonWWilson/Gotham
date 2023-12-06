@@ -73,15 +73,16 @@
     const selectEl = e.target as HTMLSelectElement;
     $settings.autoHideWaitSeconds = parseInt(selectEl.value) * 60;
   }
-
-  console.log($settings);
 </script>
 
 <div class="container">
   <div class="settings-row">
+    <span>Seconds between requests: </span>
+    <input type="number" bind:value={$settings.requestWaitSeconds} />
+  </div>
+  <div class="settings-row">
     <input type="checkbox" bind:checked={$settings.autoHideEnabled} />
     <span
-      style="user-select: none;"
       on:click={() => {
         $settings.autoHideEnabled = !$settings.autoHideEnabled;
       }}
@@ -139,9 +140,7 @@
         {#if $roomList.loading}
           Loaded {$roomList.rooms.length} rooms...
         {:else}
-          <ul
-            style="list-style-type: none; padding-left: 0; margin-top: 0; margin-bottom: 0;"
-          >
+          <ul>
             {#each filteredRoomCheckList as room}
               <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
               <li
@@ -150,7 +149,7 @@
               >
                 <div style="display: flex; border-bottom: 1px solid gray;">
                   <input type="checkbox" checked={room.checked} />
-                  <span style="user-select: none;">{room.name}</span>
+                  <span>{room.name}</span>
                 </div>
               </li>
             {/each}
@@ -162,13 +161,33 @@
 </div>
 
 <style>
-  .container {
-    color: white;
-  }
-
   h3 {
     margin-top: 0px;
     margin-bottom: 0px;
+  }
+
+  ul {
+    cursor: pointer;
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  select {
+    color: #fff;
+  }
+
+  input {
+    color: white;
+  }
+
+  span {
+    user-select: none;
+  }
+
+  .container {
+    color: white;
   }
 
   .settings-row {
@@ -182,21 +201,9 @@
     overflow-y: scroll;
   }
 
-  ul {
-    cursor: pointer;
-  }
-
   .auto-hide-rooms-container {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-  }
-
-  select {
-    color: #fff;
-  }
-
-  input {
-    color: white;
   }
 </style>

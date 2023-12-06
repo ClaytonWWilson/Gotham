@@ -2,7 +2,15 @@ import { writable } from "svelte/store";
 import AwaitedQueueProcessor from "./lib/AwaitedQueueProcessor";
 import { processAPIAction } from "./lib/utilites";
 
-const API_WAIT_TIME_MS = 1000;
+/**
+ * @type import("./types/state").AppSettings
+ */
+const DEFAULT_SETTINGS = {
+  autoHideEnabled: false,
+  autoHideRooms: new Set(),
+  autoHideWaitSeconds: 5,
+  requestWaitSeconds: 1,
+};
 
 /**
  * @type import("svelte/store").Writable.<AwaitedQueueProcessor.<import("./types/api").APIAction, void>>
@@ -68,7 +76,7 @@ export const runningQueue = writable(
     runningQueue.update((prev) => prev);
 
     return response;
-  }, API_WAIT_TIME_MS)
+  }, DEFAULT_SETTINGS.requestWaitSeconds * 1000)
 );
 
 /**
@@ -101,17 +109,40 @@ export const contactList = writable({ contacts: [], loading: false });
 let parsedSettings = JSON.parse(localStorage.getItem("gothamSettings"));
 
 if (!parsedSettings) {
-  parsedSettings = {
-    autoHideEnabled: false,
-    autoHideRooms: new Set(),
-    autoHideWaitSeconds: 5,
-  };
+  parsedSettings = DEFAULT_SETTINGS;
 }
 
-// Convert parsed list into set
+// Add missing or new settings to app state
+for (let key of Object.keys(DEFAULT_SETTINGS)) {
+  if (parsedSettings[key] === undefined) {
+    parsedSettings[key] = DEFAULT_SETTINGS[key];
+  }
+}
+
+// Remove old and invalid keys from app state
+for (let key of Object.keys(parsedSettings)) {
+  if (DEFAULT_SETTINGS[key] === undefined) {
+    delete parsedSettings[key];
+  }
+}
+
+// Convert JSON-parsed array into set
 parsedSettings.autoHideRooms = new Set(parsedSettings.autoHideRooms);
 
 /**
  * @type import("svelte/store").Writable<import("./types/state").AppSettings>
  */
 export const settings = writable(parsedSettings);
+
+// Write new settings to local storage
+settings.subscribe((newSettings) => {
+  localStorage.setItem("gothamSettings", JSON.stringify(newSettings));
+});
+
+// Adjust request wait time if changed
+settings.subscribe((updated) => {
+  runningQueue.update((prev) => {
+    prev.waitms = updated.requestWaitSeconds * 1000;
+    return prev;
+  });
+});
