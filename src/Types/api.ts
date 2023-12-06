@@ -86,9 +86,11 @@ export type ChimeContactApiResponse = ChimeContact[];
 export interface AppChimeRooms {
   rooms: ChimeRoom[];
   loading: boolean;
+  updatedAt?: Date;
 }
 
 export interface AppChimeContacts {
   contacts: ChimeContact[];
   loading: boolean;
+  updatedAt?: Date;
 }

@@ -41,6 +41,7 @@ export async function fetchChimeRooms() {
 
   roomList.update((prev) => {
     prev.loading = false;
+    prev.updatedAt = new Date();
     return prev;
   });
 }
@@ -68,6 +69,7 @@ export async function fetchChimeContacts() {
 
   contactList.update((prev) => {
     prev.loading = false;
+    prev.updatedAt = new Date();
     return prev;
   });
 }

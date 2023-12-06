@@ -7,6 +7,7 @@ import svelte from "rollup-plugin-svelte";
 import css from "rollup-plugin-css-only";
 import sveltePreprocess from "svelte-preprocess";
 import MagicString from "magic-string";
+import json from "@rollup/plugin-json";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -19,6 +20,7 @@ export default {
     file: "dist/bundle.js",
   },
   plugins: [
+    json(),
     svelte({
       preprocess: sveltePreprocess({
         sourceMap: !production,

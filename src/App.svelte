@@ -4,7 +4,7 @@
   import { fetchChimeContacts, fetchChimeRooms } from "./lib/fetchToState";
   import { getIntersection } from "./lib/utilites";
   import { routes } from "./routes.js";
-  import { runningQueue, settings } from "./stores";
+  import { roomList, runningQueue, settings } from "./stores";
   import type { APIAction, APIRequest } from "./types/api";
 
   export let rootId: string;
@@ -164,6 +164,11 @@
             fetchChimeContacts();
           }}>Refresh Data</button
         >
+        {#if $roomList.updatedAt}
+          <span class="last-updated"
+            >{`Last updated at ${$roomList.updatedAt.getHours()}:${$roomList.updatedAt.getMinutes()}`}</span
+          >
+        {/if}
       </NavBar>
       <Router {routes} />
     </div>
@@ -177,6 +182,10 @@
 
   .gotham-button {
     display: inline-block;
+  }
+
+  .last-updated {
+    color: gray;
   }
 
   .modal {
