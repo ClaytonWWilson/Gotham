@@ -4,7 +4,7 @@
 
   // import { createPopper } from "@popperjs/core";
   import NavBar from "./components/NavBar.svelte";
-  import Router, { link } from "svelte-spa-router";
+  import Router, { link, push } from "svelte-spa-router";
   import { routes } from "./routes.js";
   import { fetchChimeContacts, fetchChimeRooms } from "./lib/fetchToState";
   import { runningQueue, settings } from "./stores";
@@ -159,13 +159,15 @@
 
   let appOpen = false;
 
-  function toggleModal() {
+  function hideApp() {
     appOpen = !appOpen;
+    push("/");
+    navTitle = "Gotham - Home";
   }
 </script>
 
 <div id={rootId}>
-  <button class="gotham-button" on:click={toggleModal}> Open </button>
+  <button class="gotham-button" on:click={hideApp}> Open </button>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div
     class="modal"
