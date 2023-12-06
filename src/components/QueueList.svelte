@@ -1,8 +1,8 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import { truncateString } from "../lib/utilites";
   import type AwaitedQueueProcessor from "../lib/AwaitedQueueProcessor";
   import type { APIAction } from "../types/api";
-  import { truncateString } from "../lib/utilites";
 
   export let queue: AwaitedQueueProcessor<
     APIAction,
@@ -46,19 +46,6 @@
     width: 100%;
   }
 
-  .item {
-    padding-left: 10px;
-    padding-right: 10px;
-    border: 1px solid black;
-    padding-top: 2px;
-    padding-bottom: 2px;
-  }
-
-  .item-message {
-    color: #fff;
-    width: 100%;
-  }
-
   .item-error {
     color: palevioletred;
     width: 25%;
@@ -69,5 +56,18 @@
     cursor: pointer;
     text-decoration: underline;
     user-select: none;
+  }
+
+  .item-message {
+    color: #fff;
+    width: 100%;
+  }
+
+  .item {
+    padding-left: 10px;
+    padding-right: 10px;
+    border: 1px solid black;
+    padding-top: 2px;
+    padding-bottom: 2px;
   }
 </style>

@@ -1,11 +1,10 @@
 <script lang="ts">
   import { STATION_NAME_REGEX } from "../lib/utilites";
   import { roomList, settings } from "../stores";
-  let autoHideRoomsListVisible = false;
   import type { JobChecklistItem } from "../types/ui";
 
+  let autoHideRoomsListVisible = false;
   let selectedRoomsCount = 0;
-
   let roomsChecklist: JobChecklistItem[] = [];
 
   roomList.subscribe((rooms) => {
@@ -170,6 +169,18 @@
     margin-bottom: 0px;
   }
 
+  input {
+    color: white;
+  }
+
+  select {
+    color: #fff;
+  }
+
+  span {
+    user-select: none;
+  }
+
   ul {
     cursor: pointer;
     list-style-type: none;
@@ -178,16 +189,10 @@
     margin-bottom: 0;
   }
 
-  select {
-    color: #fff;
-  }
-
-  input {
-    color: white;
-  }
-
-  span {
-    user-select: none;
+  .auto-hide-rooms-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
   }
 
   .container {
@@ -203,11 +208,5 @@
   .station-list {
     height: 200px;
     overflow-y: scroll;
-  }
-
-  .auto-hide-rooms-container {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
   }
 </style>

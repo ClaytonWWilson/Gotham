@@ -1,13 +1,13 @@
 <script lang="ts">
-  export let rootId: string;
-
-  import NavBar from "./components/NavBar.svelte";
   import Router, { link, push } from "svelte-spa-router";
-  import { routes } from "./routes.js";
+  import NavBar from "./components/NavBar.svelte";
   import { fetchChimeContacts, fetchChimeRooms } from "./lib/fetchToState";
-  import { runningQueue, settings } from "./stores";
   import { getIntersection } from "./lib/utilites";
+  import { routes } from "./routes.js";
+  import { runningQueue, settings } from "./stores";
   import type { APIAction, APIRequest } from "./types/api";
+
+  export let rootId: string;
 
   let navTitle = "Gotham - Home";
 
@@ -195,17 +195,6 @@
       transform 0.25s;
   }
 
-  .show-modal {
-    opacity: 1;
-    visibility: visible;
-    transform: scale(1);
-    transition:
-      visibility 0s linear 0s,
-      opacity 0.25s 0s,
-      transform 0.25s;
-    z-index: 2;
-  }
-
   .modal-content {
     display: grid;
     grid-template-rows: 60px auto;
@@ -223,5 +212,16 @@
     height: 80%;
     justify-items: center;
     font-size: 13px;
+  }
+
+  .show-modal {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+    transition:
+      visibility 0s linear 0s,
+      opacity 0.25s 0s,
+      transform 0.25s;
+    z-index: 2;
   }
 </style>

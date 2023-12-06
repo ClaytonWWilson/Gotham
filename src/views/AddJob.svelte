@@ -23,16 +23,8 @@
 </div>
 
 <style>
-  .select-container {
-    display: flex;
-    height: 30px;
-  }
-
-  .new-job-container {
-    display: grid;
-    grid-template-rows: 30px auto;
-    min-height: 100%;
-    width: 100%;
+  option {
+    font-size: 12pt;
   }
 
   select {
@@ -46,7 +38,15 @@
     color: white;
   }
 
-  option {
-    font-size: 12pt;
+  .new-job-container {
+    display: grid;
+    grid-template-rows: 30px auto;
+    min-height: 100%;
+    width: 100%;
+  }
+
+  .select-container {
+    display: flex;
+    height: 30px;
   }
 </style>

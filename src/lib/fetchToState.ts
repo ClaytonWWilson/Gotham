@@ -1,11 +1,11 @@
+import { roomList, contactList } from "../stores";
+import { sendApiRequest, sleepms } from "./utilites";
 import type {
   APIRequest,
   ChimeContactApiResponse,
   ChimeRoomsAPIResponse,
 } from "../types/api";
 
-import { roomList, contactList } from "../stores";
-import { sendApiRequest, sleepms } from "./utilites";
 const CHIME_ROOMS_BASE_URL = "https://api.express.ue1.app.chime.aws/msg/rooms/";
 
 export async function fetchChimeRooms() {

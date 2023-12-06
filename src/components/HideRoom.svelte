@@ -1,8 +1,8 @@
 <script lang="ts">
   import { link } from "svelte-spa-router";
+  import { STATION_NAME_REGEX } from "../lib/utilites";
   import { roomList, plannedQueue } from "../stores";
   import type { APIAction, APIRequest } from "../types/api";
-  import { STATION_NAME_REGEX } from "../lib/utilites";
   import type { JobChecklistItem } from "../types/ui";
 
   let roomsChecklist: JobChecklistItem[] = [];
@@ -123,9 +123,7 @@
     {#if $roomList.loading}
       Loaded {$roomList.rooms.length} rooms...
     {:else}
-      <ul
-        style="list-style-type: none; padding-left: 0; margin-top: 0; margin-bottom: 0;"
-      >
+      <ul>
         {#each filteredRoomCheckList as room}
           <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
           <li on:click={() => roomSelectHandler(room)} on:keydown={() => {}}>
@@ -152,11 +150,18 @@
   h3 {
     margin-top: 0px;
     margin-bottom: 0px;
-    /* text-align: center; */
   }
 
   input {
     color: white;
+  }
+
+  ul {
+    cursor: pointer;
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 0;
+    margin-bottom: 0;
   }
 
   .hide-rooms-container {
@@ -177,12 +182,7 @@
   }
 
   .station-list {
-    /* border: 2px solid red; */
     height: 100%;
     overflow-y: auto;
-  }
-
-  ul {
-    cursor: pointer;
   }
 </style>

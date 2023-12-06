@@ -105,11 +105,11 @@ export function truncateString(
 }
 
 export function getIntersection<T>(set1: Set<T>, set2: Set<T>) {
-  const ans = new Set<T>();
+  const intersection = new Set<T>();
   for (let i of set2) {
     if (set1.has(i)) {
-      ans.add(i);
+      intersection.add(i);
     }
   }
-  return ans;
+  return intersection;
 }

@@ -10,16 +10,9 @@
 </nav>
 
 <style>
-  /* nav {
-    display: flex;
-  } */
-
   h1 {
     text-align: center;
     color: #ffffff;
-    /* padding-left: 30px;
-    margin-top: 0px;
-    margin-bottom: 0px; */
   }
 
   .slot-content {

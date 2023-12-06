@@ -56,11 +56,6 @@
 </section>
 
 <style>
-  section {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-  }
-
   div {
     display: flex;
     justify-content: center;
@@ -71,6 +66,11 @@
     border: 1px solid black;
     color: white;
     user-select: none;
+  }
+
+  section {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
   }
 
   .selected {

@@ -1,8 +1,8 @@
 <script lang="ts">
   import { link } from "svelte-spa-router";
+  import { STATION_NAME_REGEX } from "../lib/utilites";
   import { contactList, roomList, plannedQueue } from "../stores";
   import type { APIAction, APIRequest } from "../types/api";
-  import { STATION_NAME_REGEX } from "../lib/utilites";
   import type { JobChecklistItem } from "../types/ui";
 
   let roomsChecklist: JobChecklistItem[] = [];
@@ -244,28 +244,6 @@
     margin-bottom: 0px;
   }
 
-  .invite-container {
-    color: white;
-    min-height: 100%;
-    display: grid;
-    grid-template-rows: auto 20px 20px;
-    width: 100%;
-  }
-
-  /* .invite-link {
-    margin-top: auto;
-    display: block;
-  } */
-
-  .invite-link > button {
-    width: 100%;
-  }
-
-  .checkable-list {
-    max-height: 100%;
-    overflow-y: auto;
-  }
-
   ul {
     cursor: pointer;
     list-style-type: none;
@@ -274,11 +252,28 @@
     margin-bottom: 0;
   }
 
+  .checkable-list {
+    max-height: 100%;
+    overflow-y: auto;
+  }
+
   .checklist-container {
     width: 100%;
     min-height: 100%;
     display: grid;
     grid-template-rows: 20px 20px 20px auto;
+  }
+
+  .invite-container {
+    color: white;
+    min-height: 100%;
+    display: grid;
+    grid-template-rows: auto 20px 20px;
+    width: 100%;
+  }
+
+  .invite-link > button {
+    width: 100%;
   }
 
   .lists-wrapper {

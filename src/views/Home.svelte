@@ -7,9 +7,10 @@
     plannedQueue,
     runningQueue,
   } from "../stores";
-  import type { APIAction } from "../types/api";
   import type { Writable } from "svelte/store";
   import type AwaitedQueueProcessor from "../lib/AwaitedQueueProcessor";
+  import type { APIAction } from "../types/api";
+
   let selectedTab = "Planned";
 
   let currentQueue: Writable<
@@ -96,15 +97,15 @@
 </div>
 
 <style>
+  button {
+    color: white;
+  }
+
   .container {
     display: grid;
     grid-template-rows: 30px auto 30px;
     width: 100%;
     max-height: 100%;
     min-height: 100%;
-  }
-
-  button {
-    color: white;
   }
 </style>
