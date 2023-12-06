@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import Trash from "../icons/Trash.svelte";
   import { truncateString } from "../lib/utilites";
   import type AwaitedQueueProcessor from "../lib/AwaitedQueueProcessor";
   import type { APIAction } from "../types/api";
@@ -29,7 +30,13 @@
           on:click={() => {
             deleteHandler(index);
           }}
-          on:keydown={() => {}}>Delete</td
+          on:keydown={() => {}}
+          ><Trash
+            --color="red"
+            --width="15px"
+            --height="15px"
+            --vertical-align="sub"
+          /></td
         >
       </tr>
     {/each}
@@ -52,10 +59,7 @@
   }
 
   .item-delete {
-    color: red;
     cursor: pointer;
-    text-decoration: underline;
-    user-select: none;
   }
 
   .item-message {
@@ -69,5 +73,6 @@
     border: 1px solid black;
     padding-top: 2px;
     padding-bottom: 2px;
+    cursor: auto;
   }
 </style>
