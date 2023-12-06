@@ -1,9 +1,9 @@
 {
-  "name": "gotham",
+  "name": "Gotham",
   "version": "0.0.3",
-  "description": "gotham",
-  "author": "Clayton Wilson and Cullen Henderson",
-  "homepage": "https://github.com/ClaytonWWilson/scripts",
+  "description": "Gotham",
+  "author": "Clayton Wilson (eclawils) and Cullen Henderson (cullenhe)",
+  "homepage": "https://github.com/ClaytonWWilson/Gotham",
   "license": "MIT",
   "scripts": {
     "build": "rollup -c",
