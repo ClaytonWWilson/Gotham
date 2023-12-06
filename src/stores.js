@@ -104,7 +104,7 @@ if (!parsedSettings) {
   parsedSettings = {
     autoHideEnabled: false,
     autoHideRooms: new Set(),
-    autoHideWaitMinutes: 5,
+    autoHideWaitSeconds: 5,
   };
 }
 

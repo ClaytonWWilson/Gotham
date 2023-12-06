@@ -71,7 +71,7 @@
 
   function waitTimeChangeHandler(e: Event) {
     const selectEl = e.target as HTMLSelectElement;
-    $settings.autoHideWaitMinutes = parseInt(selectEl.value);
+    $settings.autoHideWaitSeconds = parseInt(selectEl.value) * 60;
   }
 
   console.log($settings);
@@ -88,7 +88,7 @@
       on:keydown={() => {}}>Auto-hide rooms</span
     >
     <select
-      value={String($settings.autoHideWaitMinutes)}
+      value={String($settings.autoHideWaitSeconds)}
       on:change={waitTimeChangeHandler}
     >
       <option value="5">5 min</option>

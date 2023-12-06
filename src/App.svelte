@@ -118,7 +118,7 @@
 
           if (
             now.valueOf() - stored.joinedAt.valueOf() >
-            $settings.autoHideWaitMinutes * 60 * 1000
+            $settings.autoHideWaitSeconds * 1000
           ) {
             let request: APIRequest = {
               endpoint: `https://api.express.ue1.app.chime.aws/msg/rooms/${roomId}`,
