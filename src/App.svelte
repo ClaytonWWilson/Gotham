@@ -134,7 +134,7 @@
 </script>
 
 <div id={rootId}>
-  <button class="gotham-button" on:click={hideApp}> Open </button>
+  <button class="gotham-button" on:click={hideApp}> Gotham </button>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div
     class="modal"
