@@ -2,7 +2,7 @@
   import Router, { link, push } from "svelte-spa-router";
   import NavBar from "./components/NavBar.svelte";
   import { fetchChimeContacts, fetchChimeRooms } from "./lib/fetchToState";
-  import { getIntersection } from "./lib/utilites";
+  import { getIntersection, leftPad } from "./lib/utilites";
   import { routes } from "./routes.js";
   import { roomList, runningQueue, settings } from "./stores";
   import type { APIAction, APIRequest } from "./types/api";
@@ -166,7 +166,11 @@
         >
         {#if $roomList.updatedAt}
           <span class="last-updated"
-            >{`Last updated at ${$roomList.updatedAt.getHours()}:${$roomList.updatedAt.getMinutes()}`}</span
+            >{`Last updated at ${$roomList.updatedAt.getHours()}:${leftPad(
+              $roomList.updatedAt.getMinutes().toFixed(),
+              2,
+              "0"
+            )}`}</span
           >
         {/if}
       </NavBar>

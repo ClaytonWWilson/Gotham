@@ -113,3 +113,17 @@ export function getIntersection<T>(set1: Set<T>, set2: Set<T>) {
   }
   return intersection;
 }
+
+export function leftPad(str: string, length: number, char?: string) {
+  if (str.length >= length) return str;
+
+  if (!char) char = " ";
+
+  let padded = new Array(length).fill(char);
+
+  for (let i = 0; i < str.length; i++) {
+    padded[i + length - str.length] = str[i];
+  }
+
+  return padded.join("");
+}
