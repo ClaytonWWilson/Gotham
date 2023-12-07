@@ -164,9 +164,7 @@
         {#if $roomList.loading}
           Loaded {$roomList.rooms.length} rooms...
         {:else}
-          <ul
-            style="list-style-type: none; padding-left: 0; margin-top: 0; margin-bottom: 0;"
-          >
+          <ul>
             {#each filteredRoomCheckList as room}
               <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
               <li
@@ -175,7 +173,9 @@
               >
                 <div style="display: flex; border-bottom: 1px solid gray;">
                   <input type="checkbox" checked={room.checked} />
-                  <span style="user-select: none;">{room.name}</span>
+                  <span style="user-select: none; text-wrap: nowrap;"
+                    >{room.name}</span
+                  >
                 </div>
               </li>
             {/each}
@@ -217,7 +217,9 @@
             >
               <div style="display: flex; border-bottom: 1px solid gray;">
                 <input type="checkbox" checked={contact.checked} />
-                <span style="user-select: none;">{contact.name}</span>
+                <span style="user-select: none; text-wrap: nowrap;"
+                  >{contact.name}</span
+                >
               </div>
             </li>
           {/each}
@@ -250,6 +252,7 @@
     padding-left: 0;
     margin-top: 0;
     margin-bottom: 0;
+    overflow-x: hidden;
   }
 
   .checkable-list {

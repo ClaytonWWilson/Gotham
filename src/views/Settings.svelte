@@ -150,9 +150,9 @@
                 on:click={() => roomSelectHandler(room)}
                 on:keydown={() => {}}
               >
-                <div style="display: flex; border-bottom: 1px solid gray;">
+                <div class="list-item-wrapper">
                   <input type="checkbox" checked={room.checked} />
-                  <span>{room.name}</span>
+                  <span style="text-wrap: nowrap;">{room.name}</span>
                 </div>
               </li>
             {/each}
@@ -191,6 +191,8 @@
     padding-left: 0;
     margin-top: 0;
     margin-bottom: 0;
+    max-width: 400px;
+    overflow-x: hidden;
   }
 
   .auto-hide-rooms-container {
@@ -201,6 +203,11 @@
 
   .container {
     color: white;
+  }
+
+  .list-item-wrapper {
+    display: flex;
+    border-bottom: 1px solid gray;
   }
 
   .request-wait {
