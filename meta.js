@@ -15,8 +15,15 @@ let meta = {
   author: pkg.author,
   namespace: "mailto:eclawils@amazon.com",
   match: ["https://app.chime.aws/*"],
-  grant: ["GM_addStyle", "GM_getResourceText", "GM_xmlhttpRequest"],
-  connect: [],
+  grant: [
+    "GM_addStyle",
+    "GM_getResourceText",
+    "GM_getValue",
+    "GM_setValue",
+    "GM_listValues",
+    "GM_xmlhttpRequest",
+  ],
+  connect: ["app.chime.aws"],
   "run-at": "document-idle",
 };
 

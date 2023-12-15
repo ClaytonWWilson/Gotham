@@ -106,7 +106,7 @@ export const contactList = writable({ contacts: [], loading: false });
 /**
  * @type import("./types/state").AppSettings | null
  */
-let parsedSettings = JSON.parse(localStorage.getItem("gothamSettings"));
+let parsedSettings = JSON.parse(GM_getValue("gothamSettings", null));
 
 if (!parsedSettings) {
   parsedSettings = DEFAULT_SETTINGS;
@@ -136,7 +136,7 @@ export const settings = writable(parsedSettings);
 
 // Write new settings to local storage
 settings.subscribe((newSettings) => {
-  localStorage.setItem("gothamSettings", JSON.stringify(newSettings));
+  GM_setValue("gothamSettings", JSON.stringify(newSettings));
 });
 
 // Adjust request wait time if changed
