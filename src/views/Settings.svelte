@@ -114,6 +114,7 @@
         >
         <div style="float:right;">
           <button
+            class="select-button"
             on:click={() => {
               selectAll(roomsChecklist);
               selectedRoomsCount = roomsChecklist.length;
@@ -121,6 +122,7 @@
             }}>All</button
           >
           <button
+            class="select-button"
             on:click={() => {
               selectNone(roomsChecklist);
               selectedRoomsCount = 0;
@@ -128,6 +130,7 @@
             }}>None</button
           >
           <button
+            class="select-button"
             on:click={() => {
               selectRegex(roomsChecklist, STATION_NAME_REGEX);
               selectedRoomsCount = roomsChecklist.filter(
@@ -166,6 +169,7 @@
 <style>
   button {
     color: white;
+    background-color: #6b6b6b;
   }
 
   h3 {
@@ -173,12 +177,9 @@
     margin-bottom: 0px;
   }
 
-  input {
-    color: white;
-  }
-
   select {
     color: #fff;
+    background-color: #6b6b6b;
   }
 
   span {
@@ -212,6 +213,18 @@
 
   .request-wait {
     width: 40px;
+    color: white;
+    background-color: #6b6b6b;
+  }
+
+  .search-input {
+    color: white;
+    background-color: #6b6b6b;
+  }
+
+  .select-button {
+    color: white;
+    background-color: #6b6b6b;
   }
 
   .settings-row {

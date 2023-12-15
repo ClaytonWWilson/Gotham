@@ -99,6 +99,7 @@
 <style>
   button {
     color: white;
+    background-color: #6b6b6b;
   }
 
   .container {

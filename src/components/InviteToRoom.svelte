@@ -135,6 +135,7 @@
         >
         <div style="float:right;">
           <button
+            class="select-button"
             on:click={() => {
               selectAll(roomsChecklist);
               selectedRoomsCount = roomsChecklist.length;
@@ -142,6 +143,7 @@
             }}>All</button
           >
           <button
+            class="select-button"
             on:click={() => {
               selectRegex(roomsChecklist, STATION_NAME_REGEX);
               selectedRoomsCount = roomsChecklist.filter(
@@ -151,6 +153,7 @@
             }}>Stations</button
           >
           <button
+            class="select-button"
             on:click={() => {
               selectNone(roomsChecklist);
               selectedRoomsCount = 0;
@@ -191,6 +194,7 @@
         >
         <div style="float:right;">
           <button
+            class="select-button"
             on:click={() => {
               selectAll(contactsChecklist);
               selectedContactsCount = contactsChecklist.length;
@@ -198,6 +202,7 @@
             }}>All</button
           >
           <button
+            class="select-button"
             on:click={() => {
               selectNone(contactsChecklist);
               selectedContactsCount = 0;
@@ -232,7 +237,7 @@
       selectedRoomsCount} invites</span
   >
   <a class="invite-link" href="/" use:link>
-    <button on:click={queueInvites}>Queue Invites</button>
+    <button class="queue-button" on:click={queueInvites}>Queue Invites</button>
   </a>
 </div>
 
@@ -287,8 +292,19 @@
     min-height: 100%;
   }
 
+  .queue-button {
+    color: white;
+    background-color: #6b6b6b;
+  }
+
   .search-input {
     width: 100%;
     color: white;
+    background-color: #6b6b6b;
+  }
+
+  .select-button {
+    color: white;
+    background-color: #6b6b6b;
   }
 </style>

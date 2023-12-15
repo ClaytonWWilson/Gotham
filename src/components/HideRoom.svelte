@@ -94,6 +94,7 @@
     >
     <div style="float:right;">
       <button
+        class="select-button"
         on:click={() => {
           selectAll(roomsChecklist);
           selectedRoomsCount = roomsChecklist.length;
@@ -101,6 +102,7 @@
         }}>All</button
       >
       <button
+        class="select-button"
         on:click={() => {
           selectNone(roomsChecklist);
           selectedRoomsCount = 0;
@@ -108,6 +110,7 @@
         }}>None</button
       >
       <button
+        class="select-button"
         on:click={() => {
           selectRegex(roomsChecklist, STATION_NAME_REGEX);
           selectedRoomsCount = roomsChecklist.filter(
@@ -140,7 +143,9 @@
   </div>
   <span>Hiding {selectedRoomsCount} rooms</span>
   <a class="hiding-link" href="/" use:link>
-    <button on:click={queueHidingOperations}>Queue Hiding</button>
+    <button class="queue-button" on:click={queueHidingOperations}
+      >Queue Hiding</button
+    >
   </a>
 </div>
 
@@ -152,10 +157,6 @@
   h3 {
     margin-top: 0px;
     margin-bottom: 0px;
-  }
-
-  input {
-    color: white;
   }
 
   ul {
@@ -182,6 +183,21 @@
 
   .hiding-link > button {
     width: 100%;
+  }
+
+  .queue-button {
+    color: white;
+    background-color: #6b6b6b;
+  }
+
+  .search-input {
+    color: white;
+    background-color: #6b6b6b;
+  }
+
+  .select-button {
+    color: white;
+    background-color: #6b6b6b;
   }
 
   .station-list {

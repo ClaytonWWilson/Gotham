@@ -159,6 +159,7 @@
           on:click={() => (navTitle = "Gotham - Settings")}>Settings</a
         >
         <button
+          class="refresh-button"
           on:click={() => {
             fetchChimeRooms();
             fetchChimeContacts();
@@ -186,6 +187,9 @@
 
   .gotham-button {
     display: inline-block;
+    background-color: #6b6b6b;
+    margin-left: 10px;
+    border-radius: 4px;
   }
 
   .last-updated {
@@ -225,6 +229,11 @@
     height: 80%;
     justify-items: center;
     font-size: 13px;
+  }
+
+  .refresh-button {
+    color: white;
+    background-color: #6b6b6b;
   }
 
   .show-modal {

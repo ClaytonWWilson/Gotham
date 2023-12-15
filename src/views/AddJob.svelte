@@ -36,6 +36,7 @@
     text-align: center;
     font-size: 12pt;
     color: white;
+    background-color: #6b6b6b;
   }
 
   .new-job-container {
