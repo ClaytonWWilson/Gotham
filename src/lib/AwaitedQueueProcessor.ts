@@ -74,16 +74,13 @@ export default class AwaitedQueueProcessor<T, U> implements Queue<T> {
   }
 
   async stop() {
-    return new Promise<void>(async (resolve) => {
-      this.stopped = true;
+    this.stopped = true;
 
-      while (this.running) {
-        await sleepms(1);
-      }
+    while (this.running) {
+      await sleepms(1);
+    }
 
-      this.stopped = false;
-      resolve();
-    });
+    this.stopped = false;
   }
 
   isRunning() {
