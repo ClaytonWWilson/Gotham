@@ -55,7 +55,7 @@
 
 <div class="hide-rooms-container">
   <SearchableChecklist
-    itemString={"Visible Rooms"}
+    itemString="Visible Rooms"
     bind:checklistItems={roomsChecklist}
     loading={$roomList.loading}
     {filterRules}
