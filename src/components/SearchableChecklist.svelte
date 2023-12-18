@@ -1,0 +1,151 @@
+<script lang="ts">
+  import { createEventDispatcher } from "svelte";
+  import { defaultFilters } from "../lib/defaults";
+  import type { FilterRule, JobChecklistItem } from "../types/ui";
+
+  const dispatch = createEventDispatcher();
+
+  export let checklistItems: JobChecklistItem[] = [];
+  export let itemString = "Items";
+  export let loading = false;
+  export let filterRules: FilterRule[] = defaultFilters;
+
+  function dispatchSelectEvent() {
+    dispatch("select", {
+      selected: checklistItems.filter((item) => item.checked),
+    });
+  }
+
+  function itemSelectHandler(item: JobChecklistItem) {
+    item.checked = !item.checked;
+
+    if (item.checked) {
+      selectedItemsCount++;
+    } else {
+      selectedItemsCount--;
+    }
+    checklistItems = checklistItems;
+
+    dispatchSelectEvent();
+  }
+
+  function selectRegex(list: JobChecklistItem[], regex: RegExp) {
+    selectedItemsCount = 0;
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].name.match(regex)) {
+        list[i].checked = true;
+        selectedItemsCount++;
+      } else {
+        list[i].checked = false;
+      }
+    }
+
+    dispatchSelectEvent();
+  }
+
+  $: filteredItemsCheckList = checklistItems.filter((item) => {
+    if (!searchString) return true;
+
+    return item.name.toLowerCase().match(searchString.toLowerCase());
+  });
+
+  let selectedItemsCount = 0;
+  let searchString: string | undefined;
+</script>
+
+<div class="container">
+  <h3>{itemString}: {checklistItems.length}</h3>
+  <div>
+    <span class="title">selected: {selectedItemsCount}</span>
+    <div class="filter-buttons-group">
+      {#each filterRules as rule}
+        <button
+          class="select-button"
+          on:click={() => {
+            selectRegex(checklistItems, rule.matcher);
+            checklistItems = checklistItems;
+          }}>{rule.name}</button
+        >
+      {/each}
+    </div>
+  </div>
+  <input type="search" class="search-input" bind:value={searchString} />
+  <div class="ul-container">
+    {#if loading}
+      Loaded {checklistItems.length} {itemString}...
+    {:else}
+      <ul>
+        {#each filteredItemsCheckList as item}
+          <li on:click={() => itemSelectHandler(item)} on:keydown={() => {}}>
+            <div class="li-inner-container">
+              <input type="checkbox" checked={item.checked} />
+              <span class="li-display-text">{item.name}</span>
+            </div>
+          </li>
+        {/each}
+      </ul>
+    {/if}
+  </div>
+</div>
+
+<style>
+  button {
+    color: white;
+  }
+
+  h3 {
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+
+  ul {
+    cursor: pointer;
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    overflow-x: hidden;
+  }
+
+  .container {
+    color: white;
+    display: grid;
+    width: 100%;
+    grid-template-rows: 20px 20px 20px auto;
+    min-height: 100%;
+  }
+
+  .filter-buttons-group {
+    float: right;
+  }
+
+  .li-display-text {
+    user-select: none;
+    text-wrap: nowrap;
+  }
+
+  .li-inner-container {
+    display: flex;
+    border-bottom: 1px solid gray;
+  }
+
+  .search-input {
+    color: white;
+    background-color: #6b6b6b;
+  }
+
+  .select-button {
+    color: white;
+    background-color: #6b6b6b;
+  }
+
+  .title {
+    font-size: 8pt;
+    color: gray;
+  }
+
+  .ul-container {
+    height: 100%;
+    overflow-y: auto;
+  }
+</style>

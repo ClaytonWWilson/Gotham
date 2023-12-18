@@ -3,3 +3,8 @@ export type JobChecklistItem = {
   id: string;
   checked: boolean;
 };
+
+export type FilterRule = {
+  name: string;
+  matcher: RegExp;
+};
