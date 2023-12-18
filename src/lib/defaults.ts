@@ -1,6 +1,7 @@
+import type { AppSettings } from "../types/state";
 import type { FilterRule } from "../types/ui";
 
-export const defaultFilters: FilterRule[] = [
+export const DEFAULT_FILTERS: FilterRule[] = [
   {
     name: "All",
     matcher: /[\s\S]+/,
@@ -10,3 +11,10 @@ export const defaultFilters: FilterRule[] = [
     matcher: /(?!.*)/,
   },
 ];
+
+export const DEFAULT_APP_SETTINGS: AppSettings = {
+  autoHideEnabled: false,
+  autoHideRooms: new Set(),
+  autoHideWaitSeconds: 5 * 60,
+  requestWaitSeconds: 1,
+};

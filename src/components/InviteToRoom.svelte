@@ -1,6 +1,6 @@
 <script lang="ts">
   import { link } from "svelte-spa-router";
-  import { defaultFilters } from "../lib/defaults";
+  import { DEFAULT_FILTERS } from "../lib/defaults";
   import { STATION_NAME_REGEX } from "../lib/utilites";
   import { contactList, roomList, plannedQueue } from "../stores";
   import type { APIAction, APIRequest } from "../types/api";
@@ -68,7 +68,7 @@
   let selectedRoomsCount = 0;
   let selectedContactsCount = 0;
   const roomFilterRules: FilterRule[] = [
-    ...defaultFilters,
+    ...DEFAULT_FILTERS,
     { name: "Stations", matcher: STATION_NAME_REGEX },
   ];
 </script>

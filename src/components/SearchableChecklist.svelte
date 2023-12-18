@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { defaultFilters } from "../lib/defaults";
+  import { DEFAULT_FILTERS } from "../lib/defaults";
   import type { FilterRule, JobChecklistItem } from "../types/ui";
 
   const dispatch = createEventDispatcher();
@@ -8,7 +8,7 @@
   export let checklistItems: JobChecklistItem[] = [];
   export let itemString = "Items";
   export let loading = false;
-  export let filterRules: FilterRule[] = defaultFilters;
+  export let filterRules: FilterRule[] = DEFAULT_FILTERS;
 
   function dispatchSelectEvent() {
     dispatch("select", {

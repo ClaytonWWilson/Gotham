@@ -1,6 +1,6 @@
 <script lang="ts">
   import SearchableChecklist from "../components/SearchableChecklist.svelte";
-  import { defaultFilters } from "../lib/defaults";
+  import { DEFAULT_FILTERS } from "../lib/defaults";
   import { STATION_NAME_REGEX } from "../lib/utilites";
   import { roomList, settings } from "../stores";
   import type { FilterRule, JobChecklistItem } from "../types/ui";
@@ -32,7 +32,7 @@
   }
 
   const filterRules: FilterRule[] = [
-    ...defaultFilters,
+    ...DEFAULT_FILTERS,
     { name: "Stations", matcher: STATION_NAME_REGEX },
   ];
 </script>

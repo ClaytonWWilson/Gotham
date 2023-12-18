@@ -1,16 +1,7 @@
 import { writable } from "svelte/store";
 import AwaitedQueueProcessor from "./lib/AwaitedQueueProcessor";
 import { processAPIAction } from "./lib/utilites";
-
-/**
- * @type import("./types/state").AppSettings
- */
-const DEFAULT_SETTINGS = {
-  autoHideEnabled: false,
-  autoHideRooms: new Set(),
-  autoHideWaitSeconds: 5 * 60,
-  requestWaitSeconds: 1,
-};
+import { DEFAULT_APP_SETTINGS } from "./lib/defaults";
 
 /**
  * @type import("svelte/store").Writable.<AwaitedQueueProcessor.<import("./types/api").APIAction, void>>
@@ -76,7 +67,7 @@ export const runningQueue = writable(
     runningQueue.update((prev) => prev);
 
     return response;
-  }, DEFAULT_SETTINGS.requestWaitSeconds * 1000)
+  }, DEFAULT_APP_SETTINGS.requestWaitSeconds * 1000)
 );
 
 /**
@@ -109,19 +100,19 @@ export const contactList = writable({ contacts: [], loading: false });
 let parsedSettings = JSON.parse(GM_getValue("gothamSettings", null));
 
 if (!parsedSettings) {
-  parsedSettings = DEFAULT_SETTINGS;
+  parsedSettings = DEFAULT_APP_SETTINGS;
 }
 
 // Add missing or new settings to app state
-for (let key of Object.keys(DEFAULT_SETTINGS)) {
+for (let key of Object.keys(DEFAULT_APP_SETTINGS)) {
   if (parsedSettings[key] === undefined) {
-    parsedSettings[key] = DEFAULT_SETTINGS[key];
+    parsedSettings[key] = DEFAULT_APP_SETTINGS[key];
   }
 }
 
 // Remove old and invalid keys from app state
 for (let key of Object.keys(parsedSettings)) {
-  if (DEFAULT_SETTINGS[key] === undefined) {
+  if (DEFAULT_APP_SETTINGS[key] === undefined) {
     delete parsedSettings[key];
   }
 }

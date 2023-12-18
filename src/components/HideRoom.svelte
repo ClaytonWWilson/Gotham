@@ -6,7 +6,7 @@
   import { roomList, plannedQueue } from "../stores";
   import type { APIAction, APIRequest } from "../types/api";
   import type { FilterRule, JobChecklistItem } from "../types/ui";
-  import { defaultFilters } from "../lib/defaults";
+  import { DEFAULT_FILTERS } from "../lib/defaults";
 
   let roomsChecklist: JobChecklistItem[] = [];
 
@@ -48,7 +48,7 @@
 
   let selectedRoomsCount = 0;
   const filterRules: FilterRule[] = [
-    ...defaultFilters,
+    ...DEFAULT_FILTERS,
     { name: "Stations", matcher: STATION_NAME_REGEX },
   ];
 </script>
