@@ -18,19 +18,11 @@
 
   function itemSelectHandler(item: JobChecklistItem) {
     item.checked = !item.checked;
-
-    if (item.checked) {
-      selectedItemsCount++;
-    } else {
-      selectedItemsCount--;
-    }
     checklistItems = checklistItems;
-
     dispatchSelectEvent();
   }
 
   function selectRegex(list: JobChecklistItem[], regex: RegExp) {
-    selectedItemsCount = 0;
     for (let i = 0; i < list.length; i++) {
       if (list[i].name.match(regex)) {
         list[i].checked = true;
@@ -49,7 +41,7 @@
     return item.name.toLowerCase().match(searchString.toLowerCase());
   });
 
-  let selectedItemsCount = 0;
+  $: selectedItemsCount = checklistItems.filter((item) => item.checked).length;
   let searchString: string | undefined;
 </script>
 
