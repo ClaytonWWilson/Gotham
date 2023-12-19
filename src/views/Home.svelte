@@ -8,13 +8,19 @@
     runningQueue,
   } from "../stores";
   import type { Writable } from "svelte/store";
-  import type AwaitedQueueProcessor from "../lib/AwaitedQueueProcessor";
-  import type { APIAction } from "../types/api";
+  // import type AwaitedQueueProcessor from "../lib/AwaitedQueueProcessor";
+  import type AwaitedQueueProcessorNew from "../lib/AwaitedQueueProcessorNew";
+  import type { APIRequestInfo } from "../types/api";
+  import type Queue from "../lib/Queue";
 
   let selectedTab = "Planned";
 
   let currentQueue: Writable<
-    AwaitedQueueProcessor<APIAction, Tampermonkey.Response<object> | void>
+    | AwaitedQueueProcessorNew<
+        APIRequestInfo,
+        Tampermonkey.Response<object> | void
+      >
+    | Queue<{ data: APIRequestInfo; transformer: any }>
   >;
 
   $: switch (selectedTab) {
@@ -33,7 +39,10 @@
   }
 
   function runPlanned() {
-    $runningQueue.enqueue(...$plannedQueue.drain());
+    $plannedQueue.drain().forEach((item) => {
+      $runningQueue.enqueue(item.transformer, item.data);
+    });
+    // $runningQueue.enqueue(...$plannedQueue.drain());
     $plannedQueue = $plannedQueue;
     $runningQueue.run();
     $runningQueue = $runningQueue;
@@ -48,7 +57,7 @@
     await $runningQueue.stop();
     $plannedQueue.enqueue(
       ...$runningQueue.drain().map((item) => {
-        item.status = "QUEUED";
+        item.data.status = "QUEUED";
         return item;
       })
     );
@@ -59,8 +68,8 @@
   function requeueFailed() {
     $plannedQueue.enqueue(
       ...$failedQueue.drain().map((item) => {
-        delete item.error;
-        item.status = "QUEUED";
+        delete item.data.error;
+        item.data.status = "QUEUED";
         return item;
       })
     );

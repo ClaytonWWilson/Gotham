@@ -1,7 +1,7 @@
 import { roomList, contactList } from "../stores";
 import { sendApiRequest, sleepms } from "./utilites";
 import type {
-  APIRequest,
+  HTTPRequest,
   ChimeContactApiResponse,
   ChimeRoomsAPIResponse,
 } from "../types/api";
@@ -16,7 +16,7 @@ export async function fetchChimeRooms() {
     const url = `${CHIME_ROOMS_BASE_URL}?next-token=${encodeURIComponent(
       next
     )}`;
-    const request: APIRequest = {
+    const request: HTTPRequest = {
       endpoint: url,
       method: "GET",
     };
@@ -49,7 +49,7 @@ export async function fetchChimeRooms() {
 export async function fetchChimeContacts() {
   contactList.set({ loading: true, contacts: [] });
   try {
-    const request: APIRequest = {
+    const request: HTTPRequest = {
       endpoint: "https://api.express.ue1.app.chime.aws/bazl/contacts",
       method: "GET",
     };

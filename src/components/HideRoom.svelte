@@ -4,9 +4,10 @@
   import { link } from "svelte-spa-router";
   import { STATION_NAME_REGEX } from "../lib/utilites";
   import { roomList, plannedQueue } from "../stores";
-  import type { APIAction, APIRequest } from "../types/api";
+  import type { APIRequestInfo, HTTPRequest } from "../types/api";
   import type { FilterRule, JobChecklistItem } from "../types/ui";
   import { DEFAULT_FILTERS } from "../lib/defaults";
+  import { processSimpleAPIRequest } from "../lib/transformers";
 
   let roomsChecklist: JobChecklistItem[] = [];
 
@@ -26,7 +27,7 @@
     const checkedRooms = roomsChecklist.filter((room) => room.checked);
     for (let i = 0; i < checkedRooms.length; i++) {
       let room = checkedRooms[i];
-      let request: APIRequest = {
+      let httpRequest: HTTPRequest = {
         endpoint: `https://api.express.ue1.app.chime.aws/msg/rooms/${room.id}`,
         method: "POST",
         payload: {
@@ -34,15 +35,18 @@
           Visibility: "hidden",
         },
       };
-      let action: APIAction = {
-        request,
+      let apiRequest: APIRequestInfo = {
+        request: httpRequest,
         action: "HIDE",
         createdAt: new Date(),
         displayMessage: `Hide room ${room.name}`,
         status: "QUEUED",
         retries: 5,
       };
-      $plannedQueue.enqueue(action);
+      $plannedQueue.enqueue({
+        data: apiRequest,
+        transformer: processSimpleAPIRequest,
+      });
     }
   }
 

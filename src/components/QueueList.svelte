@@ -2,13 +2,17 @@
   import { createEventDispatcher } from "svelte";
   import Trash from "../icons/Trash.svelte";
   import { truncateString } from "../lib/utilites";
-  import type AwaitedQueueProcessor from "../lib/AwaitedQueueProcessor";
-  import type { APIAction } from "../types/api";
+  // import type AwaitedQueueProcessor from "../lib/AwaitedQueueProcessor";
+  import type AwaitedQueueProcessorNew from "../lib/AwaitedQueueProcessorNew";
+  import type { APIRequestInfo } from "../types/api";
+  import type Queue from "../lib/Queue";
 
-  export let queue: AwaitedQueueProcessor<
-    APIAction,
-    Tampermonkey.Response<object> | void
-  >;
+  export let queue:
+    | AwaitedQueueProcessorNew<
+        APIRequestInfo,
+        Tampermonkey.Response<object> | void
+      >
+    | Queue<{ data: APIRequestInfo; transformer: any }>;
 
   const dispatch = createEventDispatcher();
 
@@ -21,9 +25,11 @@
   <table>
     {#each queue.items as item, index}
       <tr class="item">
-        <td class="item-message">{truncateString(item.displayMessage, 80)}</td>
-        {#if item.error}
-          <td class="item-error">{truncateString(item.error, 30)}</td>
+        <td class="item-message"
+          >{truncateString(item.data.displayMessage, 80)}</td
+        >
+        {#if item.data.error}
+          <td class="item-error">{truncateString(item.data.error, 30)}</td>
         {/if}
         <td
           class="item-delete"

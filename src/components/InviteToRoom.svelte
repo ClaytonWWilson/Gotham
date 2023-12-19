@@ -3,9 +3,10 @@
   import { DEFAULT_FILTERS } from "../lib/defaults";
   import { STATION_NAME_REGEX } from "../lib/utilites";
   import { contactList, roomList, plannedQueue } from "../stores";
-  import type { APIAction, APIRequest } from "../types/api";
+  import type { APIRequestInfo, HTTPRequest } from "../types/api";
   import type { FilterRule, JobChecklistItem } from "../types/ui";
   import SearchableChecklist from "./SearchableChecklist.svelte";
+  import { processSimpleAPIRequest } from "../lib/transformers";
 
   let roomsChecklist: JobChecklistItem[] = [];
 
@@ -42,7 +43,7 @@
       for (let j = 0; j < checkedRooms.length; j++) {
         let contact = checkedContacts[i];
         let room = checkedRooms[j];
-        let request: APIRequest = {
+        let httpRequest: HTTPRequest = {
           endpoint: `https://api.express.ue1.app.chime.aws/msg/rooms/${room.id}/memberships/`,
           method: "POST",
           payload: {
@@ -51,8 +52,8 @@
           },
         };
 
-        let action: APIAction = {
-          request,
+        let apiRequest: APIRequestInfo = {
+          request: httpRequest,
           action: "INVITE",
           createdAt: new Date(),
           displayMessage: `Invite ${contact.name} to ${room.name}`,
@@ -60,7 +61,10 @@
           retries: 5,
         };
 
-        $plannedQueue.enqueue(action);
+        $plannedQueue.enqueue({
+          data: apiRequest,
+          transformer: processSimpleAPIRequest,
+        });
       }
     }
   }

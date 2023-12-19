@@ -5,7 +5,8 @@
   import { getIntersection, leftPad } from "./lib/utilites";
   import { routes } from "./routes.js";
   import { roomList, runningQueue, settings } from "./stores";
-  import type { APIAction, APIRequest } from "./types/api";
+  import type { APIRequestInfo, HTTPRequest } from "./types/api";
+  import { processSimpleAPIRequest } from "./lib/transformers";
 
   export let rootId: string;
 
@@ -87,7 +88,7 @@
             now.valueOf() - stored.joinedAt.valueOf() >
             $settings.autoHideWaitSeconds * 1000
           ) {
-            let request: APIRequest = {
+            let httpRequest: HTTPRequest = {
               endpoint: `https://api.express.ue1.app.chime.aws/msg/rooms/${roomId}`,
               method: "POST",
               payload: {
@@ -95,15 +96,15 @@
                 Visibility: "hidden",
               },
             };
-            let action: APIAction = {
-              request,
+            let apiRequest: APIRequestInfo = {
+              request: httpRequest,
               action: "HIDE",
               createdAt: new Date(),
               displayMessage: `Auto-hide room ${roomId}`,
               status: "QUEUED",
               retries: 5,
             };
-            $runningQueue.enqueue(action);
+            $runningQueue.enqueue(processSimpleAPIRequest, apiRequest);
           }
         });
 

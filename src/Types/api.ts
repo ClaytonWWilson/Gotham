@@ -1,12 +1,12 @@
-export interface APIRequest {
+export interface HTTPRequest {
   method: "GET" | "POST" | "HEAD";
   endpoint: string;
   payload?: {};
 }
 
-export interface APIAction {
-  request: APIRequest;
-  action: "HIDE" | "INVITE";
+export interface APIRequestInfo {
+  request: HTTPRequest;
+  action: "HIDE" | "INVITE" | "REMOVE";
   displayMessage: string;
   status: "CREATED" | "QUEUED" | "WAITING" | "RUNNING" | "COMPLETE" | "FAILED";
   error?: string;

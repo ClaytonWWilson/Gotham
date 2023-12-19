@@ -1,4 +1,4 @@
-import type { APIAction, APIRequest } from "../types/api";
+import type { APIRequestInfo, HTTPRequest } from "../types/api";
 
 export const STATION_NAME_REGEX =
   /^\s?((AMXL)?.?[A-Z]{3}[1-9]{1}.?.?(-|–).?.Central[\s]?Ops.?(-|–).?[A-Za-z]+)|DON3 - East - Central Ops$/g;
@@ -10,6 +10,19 @@ export async function sleepms(milliseconds: number) {
     }, milliseconds);
   });
 }
+
+export const INVITE_ERRORS_MAP = {
+  401: {
+    message: "Token expired, try again",
+    retry: true,
+  },
+  409: {
+    message: "Already in room.",
+    retry: false,
+  },
+};
+
+export const HIDE_ROOMS_ERRORS_MAP = {};
 
 /**
  * @description Wrapper for GM_xmlhttpRequest that makes it promise-based instead of callback-based
@@ -34,7 +47,7 @@ async function sendAsyncRequest(
 }
 
 export async function sendApiRequest(
-  params: APIRequest
+  params: HTTPRequest
 ): Promise<Tampermonkey.Response<object>> {
   return new Promise(async (resolve, reject) => {
     console.log("Sending request", params);
@@ -74,16 +87,16 @@ export async function sendApiRequest(
   });
 }
 
-export async function processAPIAction(
-  action: APIAction
+export async function processAPIRequest(
+  request: APIRequestInfo
 ): Promise<Tampermonkey.Response<object>> {
-  action.startedAt = new Date();
-  action.status = "RUNNING";
+  request.startedAt = new Date();
+  request.status = "RUNNING";
 
-  const response = await sendApiRequest(action.request);
+  const response = await sendApiRequest(request.request);
 
-  action.status = "COMPLETE";
-  action.finishedAt = new Date();
+  request.status = "COMPLETE";
+  request.finishedAt = new Date();
 
   return response;
 }

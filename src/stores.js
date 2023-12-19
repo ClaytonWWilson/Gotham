@@ -1,88 +1,110 @@
 import { writable } from "svelte/store";
-import AwaitedQueueProcessor from "./lib/AwaitedQueueProcessor";
-import { processAPIAction } from "./lib/utilites";
 import { DEFAULT_APP_SETTINGS } from "./lib/defaults";
+// import AwaitedQueueProcessor from "./lib/AwaitedQueueProcessor";
+import AwaitedQueueProcessorNew from "./lib/AwaitedQueueProcessorNew";
+import { processAPIRequest } from "./lib/utilites";
+import Queue from "./lib/Queue";
 
+// /**
+//  * @type import("svelte/store").Writable.<AwaitedQueueProcessor.<import("./types/api").APIAction, void>>
+//  */
+// export const plannedQueue = writable(
+//   new AwaitedQueueProcessor(async (_a) => {}, 0)
+// );
 /**
- * @type import("svelte/store").Writable.<AwaitedQueueProcessor.<import("./types/api").APIAction, void>>
+ * @type import("svelte/store").Writable.<Queue.<import("./types/state").Transformable.<import("./types/api").APIRequestInfo>, any>>
  */
-export const plannedQueue = writable(
-  new AwaitedQueueProcessor(async (_a) => {}, 0)
-);
+export const plannedQueue = writable(new Queue());
+
+// /**
+//  * @type import("svelte/store").Writable.<AwaitedQueueProcessor.<import("./types/api").APIAction, void>>
+//  */
+// export const finishedQueue = writable(
+//   new AwaitedQueueProcessor(async (_a) => {}, 0)
+// );
 
 /**
- * @type import("svelte/store").Writable.<AwaitedQueueProcessor.<import("./types/api").APIAction, Tampermonkey.Response<object>>>
+ * @type import("svelte/store").Writable.<Queue.<import("./types/state").Transformable.<import("./types/api").APIRequestInfo, any>>>
+ */
+export const finishedQueue = writable(new Queue());
+
+// /**
+//  * @type import("svelte/store").Writable.<AwaitedQueueProcessor.<import("./types/api").APIAction, void>>
+//  */
+// export const failedQueue = writable(
+//   new AwaitedQueueProcessor(async (_a) => {}, 0)
+// );
+
+// /**
+//  * @type import("svelte/store").Writable.<AwaitedQueueProcessor.<import("./types/api").APIAction, Tampermonkey.Response<object>>>
+//  */
+// export const runningQueue = writable(
+//   new AwaitedQueueProcessor(async (action, index) => {
+//     if (!action.retries) {
+//       action.retries = 0;
+//     }
+
+//     let response;
+//     try {
+//       response = await processAPIAction(action);
+//       finishedQueue.update((prev) => {
+//         prev.enqueue(action);
+//         return prev;
+//       });
+//     } catch (error) {
+//       console.log(error);
+//       action.retries--;
+
+//       if (!error.status) {
+//         try {
+//           action.error = error + "";
+//         } catch (_err) {
+//           action.error = "Error sending request";
+//         }
+//       } else {
+//         switch (error.status) {
+//           case 409:
+//             action.error = "Already in room";
+//             action.retries = -1;
+//             break;
+//           case 401:
+//             action.error = "Token expired, try again";
+//             break;
+//         }
+//       }
+
+//       if (action.retries >= 0) {
+//         runningQueue.update((prev) => {
+//           prev.enqueue(action);
+//           return prev;
+//         });
+//       } else {
+//         failedQueue.update((prev) => {
+//           action.status = "FAILED";
+
+//           prev.enqueue(action);
+//           return prev;
+//         });
+//       }
+//     }
+
+//     // Update this list for subscribers
+//     runningQueue.update((prev) => prev);
+
+//     return response;
+//   }, DEFAULT_APP_SETTINGS.requestWaitSeconds * 1000)
+// );
+
+/**
+ * @type import("svelte/store").Writable.<AwaitedQueueProcessorNew.<import("./types/api").APIRequestInfo, Tampermonkey.Response<object>>>
  */
 export const runningQueue = writable(
-  new AwaitedQueueProcessor(async (action, index) => {
-    if (!action.retries) {
-      action.retries = 0;
-    }
-
-    let response;
-    try {
-      response = await processAPIAction(action);
-      finishedQueue.update((prev) => {
-        prev.enqueue(action);
-        return prev;
-      });
-    } catch (error) {
-      console.log(error);
-      action.retries--;
-
-      if (!error.status) {
-        try {
-          action.error = error + "";
-        } catch (_err) {
-          action.error = "Error sending request";
-        }
-      } else {
-        switch (error.status) {
-          case 409:
-            action.error = "Already in room";
-            action.retries = -1;
-            break;
-          case 401:
-            action.error = "Token expired, try again";
-            break;
-        }
-      }
-
-      if (action.retries >= 0) {
-        runningQueue.update((prev) => {
-          prev.enqueue(action);
-          return prev;
-        });
-      } else {
-        failedQueue.update((prev) => {
-          action.status = "FAILED";
-
-          prev.enqueue(action);
-          return prev;
-        });
-      }
-    }
-
-    // Update this list for subscribers
-    runningQueue.update((prev) => prev);
-
-    return response;
-  }, DEFAULT_APP_SETTINGS.requestWaitSeconds * 1000)
+  new AwaitedQueueProcessorNew(DEFAULT_APP_SETTINGS.requestWaitSeconds * 1000)
 );
-
 /**
- * @type import("svelte/store").Writable.<AwaitedQueueProcessor.<import("./types/api").APIAction, void>>
+ * @type import("svelte/store").Writable.<Queue.<import("./types/state").Transformable.<import("./types/api").APIRequestInfo, any>>>
  */
-export const finishedQueue = writable(
-  new AwaitedQueueProcessor(async (_a) => {}, 0)
-);
-
-/**
- * @type import("svelte/store").Writable.<AwaitedQueueProcessor.<import("./types/api").APIAction, void>>
- */
-export const failedQueue = writable(
-  new AwaitedQueueProcessor(async (_a) => {}, 0)
-);
+export const failedQueue = writable(new Queue());
 
 /**
  * @type import("svelte/store").Writable.<import("./types/api").AppChimeRooms>

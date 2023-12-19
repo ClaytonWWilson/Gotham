@@ -4,3 +4,8 @@ export interface AppSettings {
   autoHideWaitSeconds: number;
   requestWaitSeconds: number;
 }
+
+export interface Transformable<V, W> {
+  data: V;
+  transformer: (queueItem: V) => Promise<W>;
+}
