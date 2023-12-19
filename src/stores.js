@@ -24,6 +24,7 @@ export const runningQueue = writable(
     }
 
     let response;
+    let errorInfo;
     try {
       response = await processAPIAction(action);
       finishedQueue.update((prev) => {
@@ -41,25 +42,23 @@ export const runningQueue = writable(
           action.error = "Error sending request";
         }
       } else {
-        let errInfo;
-
         switch (action.action) {
           case "HIDE":
-            errInfo = HIDE_ROOMS_ERRORS_MAP[error.status];
+            errorInfo = HIDE_ROOMS_ERRORS_MAP[error.status];
             break;
           case "INVITE":
-            errInfo = INVITE_ERRORS_MAP[error.status];
+            errorInfo = INVITE_ERRORS_MAP[error.status];
             break;
         }
 
-        if (errInfo && errInfo.message) {
-          action.error = errInfo.message;
+        if (errorInfo && errorInfo.message) {
+          action.error = errorInfo.message;
         } else {
           action.error = error + "";
         }
       }
 
-      if (action.retries >= 0) {
+      if (action.retries >= 0 && errorInfo && errorInfo.retry) {
         runningQueue.update((prev) => {
           prev.enqueue(action);
           return prev;
