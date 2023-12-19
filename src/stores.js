@@ -1,6 +1,10 @@
 import { writable } from "svelte/store";
 import AwaitedQueueProcessor from "./lib/AwaitedQueueProcessor";
-import { processAPIAction } from "./lib/utilites";
+import {
+  HIDE_ROOMS_ERRORS_MAP,
+  INVITE_ERRORS_MAP,
+  processAPIAction,
+} from "./lib/utilites";
 import { DEFAULT_APP_SETTINGS } from "./lib/defaults";
 
 /**
@@ -37,14 +41,21 @@ export const runningQueue = writable(
           action.error = "Error sending request";
         }
       } else {
-        switch (error.status) {
-          case 409:
-            action.error = "Already in room";
-            action.retries = -1;
+        let errInfo;
+
+        switch (action.action) {
+          case "HIDE":
+            errInfo = HIDE_ROOMS_ERRORS_MAP[error.status];
             break;
-          case 401:
-            action.error = "Token expired, try again";
+          case "INVITE":
+            errInfo = INVITE_ERRORS_MAP[error.status];
             break;
+        }
+
+        if (errInfo && errInfo.message) {
+          action.error = errInfo.message;
+        } else {
+          action.error = error + "";
         }
       }
 

@@ -11,6 +11,19 @@ export async function sleepms(milliseconds: number) {
   });
 }
 
+export const INVITE_ERRORS_MAP = {
+  401: {
+    message: "Token expired, try again",
+    retry: true,
+  },
+  409: {
+    message: "Already in room.",
+    retry: false,
+  },
+};
+
+export const HIDE_ROOMS_ERRORS_MAP = {};
+
 /**
  * @description Wrapper for GM_xmlhttpRequest that makes it promise-based instead of callback-based
  * @param {Tampermonkey.Request.<object>} request The request to be sent
