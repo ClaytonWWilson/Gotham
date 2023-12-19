@@ -61,6 +61,7 @@
       ...$failedQueue.drain().map((item) => {
         delete item.error;
         item.status = "QUEUED";
+        item.retries = 5;
         return item;
       })
     );
