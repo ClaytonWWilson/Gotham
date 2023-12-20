@@ -1,12 +1,14 @@
 <script lang="ts">
-  import SearchableChecklist from "../components/SearchableChecklist.svelte";
+  import SearchableInputList from "../components/SearchableInputList.svelte";
   import { DEFAULT_FILTERS } from "../lib/defaults";
   import { STATION_NAME_REGEX } from "../lib/utilites";
   import { roomList, settings } from "../stores";
-  import type { FilterRule, JobChecklistItem } from "../types/ui";
+  import type { FilterRule, SearchableListItem } from "../types/ui";
 
   let autoHideRoomsListVisible = false;
-  let roomsChecklist: JobChecklistItem[] = [];
+  let roomsChecklist: SearchableListItem[] = [];
+
+  let selectedAutoHideRooms: SearchableListItem | SearchableListItem[] = [];
 
   roomList.subscribe((rooms) => {
     roomsChecklist = rooms.rooms.map((room) => {
@@ -16,9 +18,11 @@
         checked: $settings.autoHideRooms.has(room.RoomId),
       };
     });
+
+    selectedAutoHideRooms = roomsChecklist.filter((room) => room.checked);
   });
 
-  function roomSelectHandler(roomItems: JobChecklistItem[]) {
+  function roomSelectHandler(roomItems: SearchableListItem[]) {
     $settings.autoHideRooms.clear();
     roomItems.forEach((room) => $settings.autoHideRooms.add(room.id));
     roomsChecklist = roomsChecklist;
@@ -71,12 +75,15 @@
   <div class="auto-hide-rooms-container">
     {#if autoHideRoomsListVisible}
       <div class="checklist-container">
-        <SearchableChecklist
+        <SearchableInputList
           itemString="Rooms"
           {filterRules}
           loading={$roomList.loading}
-          bind:checklistItems={roomsChecklist}
+          type="checkbox"
+          checklistItems={roomsChecklist}
+          bind:selected={selectedAutoHideRooms}
           on:select={(data) => {
+            console.log(data.detail);
             const selectedRooms = data.detail.selected;
             roomSelectHandler(selectedRooms);
           }}

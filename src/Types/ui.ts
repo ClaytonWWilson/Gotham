@@ -1,7 +1,6 @@
-export type JobChecklistItem = {
+export type SearchableListItem = {
   name: string;
-  id: string;
-  checked: boolean;
+  [key: string]: any;
 };
 
 export type FilterRule = {

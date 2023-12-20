@@ -1,14 +1,14 @@
 <script lang="ts">
-  import SearchableChecklist from "./SearchableChecklist.svelte";
+  import SearchableInputList from "./SearchableInputList.svelte";
 
   import { link } from "svelte-spa-router";
   import { STATION_NAME_REGEX } from "../lib/utilites";
   import { roomList, plannedQueue } from "../stores";
   import type { APIAction, APIRequest } from "../types/api";
-  import type { FilterRule, JobChecklistItem } from "../types/ui";
+  import type { FilterRule, SearchableListItem } from "../types/ui";
   import { DEFAULT_FILTERS } from "../lib/defaults";
 
-  let roomsChecklist: JobChecklistItem[] = [];
+  let roomsChecklist: SearchableListItem[] = [];
 
   roomList.subscribe((rooms) => {
     roomsChecklist = rooms.rooms
@@ -54,8 +54,9 @@
 </script>
 
 <div class="hide-rooms-container">
-  <SearchableChecklist
+  <SearchableInputList
     itemString="Visible Rooms"
+    type="checkbox"
     bind:checklistItems={roomsChecklist}
     loading={$roomList.loading}
     {filterRules}
