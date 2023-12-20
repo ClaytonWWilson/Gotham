@@ -4,10 +4,10 @@
   import { STATION_NAME_REGEX } from "../lib/utilites";
   import { contactList, roomList, plannedQueue } from "../stores";
   import type { APIAction, APIRequest } from "../types/api";
-  import type { FilterRule, SearchableListItem } from "../types/ui";
-  import SearchableInputList from "./SearchableInputList.svelte";
+  import type { FilterRule, JobChecklistItem } from "../types/ui";
+  import SearchableChecklist from "./SearchableChecklist.svelte";
 
-  let roomsChecklist: SearchableListItem[] = [];
+  let roomsChecklist: JobChecklistItem[] = [];
 
   roomList.subscribe((rooms) => {
     roomsChecklist = rooms.rooms.map((room) => {
@@ -19,7 +19,7 @@
     });
   });
 
-  let contactsChecklist: SearchableListItem[] = [];
+  let contactsChecklist: JobChecklistItem[] = [];
 
   contactList.subscribe((contacts) => {
     if (!contacts.loading) {
@@ -34,10 +34,14 @@
   });
 
   function queueInvites() {
-    for (let i = 0; i < selectedContacts.length; i++) {
-      for (let j = 0; j < selectedRooms.length; j++) {
-        let contact = selectedContacts[i];
-        let room = selectedRooms[j];
+    const checkedContacts = contactsChecklist.filter(
+      (contact) => contact.checked
+    );
+    const checkedRooms = roomsChecklist.filter((room) => room.checked);
+    for (let i = 0; i < checkedContacts.length; i++) {
+      for (let j = 0; j < checkedRooms.length; j++) {
+        let contact = checkedContacts[i];
+        let room = checkedRooms[j];
         let request: APIRequest = {
           endpoint: `https://api.express.ue1.app.chime.aws/msg/rooms/${room.id}/memberships/`,
           method: "POST",
@@ -61,39 +65,39 @@
     }
   }
 
+  let selectedRoomsCount = 0;
+  let selectedContactsCount = 0;
   const roomFilterRules: FilterRule[] = [
     ...DEFAULT_FILTERS,
     { name: "Stations", matcher: STATION_NAME_REGEX },
   ];
-  let selectedRooms: SearchableListItem | SearchableListItem[] = [];
-  let selectedContacts: SearchableListItem | SearchableListItem[] = [];
 </script>
 
 <div class="invite-container">
   <div class="lists-wrapper">
     <div class="checklist-container">
-      <SearchableInputList
+      <SearchableChecklist
         itemString="Rooms"
-        type="checkbox"
         filterRules={roomFilterRules}
-        checklistItems={roomsChecklist}
-        bind:selected={selectedRooms}
+        bind:checklistItems={roomsChecklist}
         loading={$roomList.loading}
+        on:select={(event) =>
+          (selectedRoomsCount = event.detail.selected.length)}
       />
     </div>
     <div class="checklist-container">
-      <SearchableInputList
+      <SearchableChecklist
         itemString="Contacts"
-        type="checkbox"
-        checklistItems={contactsChecklist}
-        bind:selected={selectedContacts}
+        bind:checklistItems={contactsChecklist}
         loading={$contactList.loading}
+        on:select={(event) =>
+          (selectedContactsCount = event.detail.selected.length)}
       />
     </div>
   </div>
   <span
-    >Inviting {selectedContacts.length} people to {selectedRooms.length} rooms: {selectedContacts.length *
-      selectedRooms.length} invites</span
+    >Inviting {selectedContactsCount} people to {selectedRoomsCount} rooms: {selectedContactsCount *
+      selectedRoomsCount} invites</span
   >
   <a class="invite-link" href="/" use:link>
     <button class="queue-button" on:click={queueInvites}>Queue Invites</button>

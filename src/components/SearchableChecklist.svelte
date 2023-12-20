@@ -1,28 +1,34 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { DEFAULT_FILTERS } from "../lib/defaults";
-  import type { FilterRule, SearchableListItem } from "../types/ui";
+  import type { FilterRule, JobChecklistItem } from "../types/ui";
 
   const dispatch = createEventDispatcher();
 
-  export let checklistItems: SearchableListItem[] = [];
+  export let checklistItems: JobChecklistItem[] = [];
   export let itemString = "Items";
   export let loading = false;
   export let filterRules: FilterRule[] = DEFAULT_FILTERS;
-  export let type: "checkbox" | "radio";
-  export let selected: SearchableListItem | SearchableListItem[] = [];
 
   function dispatchSelectEvent() {
     dispatch("select", {
-      selected,
+      selected: checklistItems.filter((item) => item.checked),
     });
   }
 
-  function selectRegex(list: SearchableListItem[], regex: RegExp) {
-    selected = [];
+  function itemSelectHandler(item: JobChecklistItem) {
+    item.checked = !item.checked;
+    checklistItems = checklistItems;
+    dispatchSelectEvent();
+  }
+
+  function selectRegex(list: JobChecklistItem[], regex: RegExp) {
     for (let i = 0; i < list.length; i++) {
       if (list[i].name.match(regex)) {
-        selected.push(list[i]);
+        list[i].checked = true;
+        selectedItemsCount++;
+      } else {
+        list[i].checked = false;
       }
     }
 
@@ -35,15 +41,14 @@
     return item.name.toLowerCase().match(searchString.toLowerCase());
   });
 
+  $: selectedItemsCount = checklistItems.filter((item) => item.checked).length;
   let searchString: string | undefined;
 </script>
 
 <div class="container">
   <h3>{itemString}: {checklistItems.length}</h3>
   <div>
-    <span class="title"
-      >selected: {selected.length !== undefined ? selected.length : 1}</span
-    >
+    <span class="title">selected: {selectedItemsCount}</span>
     <div class="filter-buttons-group">
       {#each filterRules as rule}
         <button
@@ -63,27 +68,12 @@
     {:else}
       <ul>
         {#each filteredItemsCheckList as item}
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <label style="display: block;">
-            {#if type === "checkbox"}
-              <input
-                type="checkbox"
-                value={item}
-                bind:group={selected}
-                on:change={dispatchSelectEvent}
-              />
-            {:else if type === "radio"}
-              <input
-                type="radio"
-                value={item}
-                bind:group={selected}
-                on:change={dispatchSelectEvent}
-              />
-            {:else}
-              <input value={item} on:change={dispatchSelectEvent} />
-            {/if}
-            {item.name}
-          </label>
+          <li on:click={() => itemSelectHandler(item)} on:keydown={() => {}}>
+            <div class="li-inner-container">
+              <input type="checkbox" checked={item.checked} />
+              <span class="li-display-text">{item.name}</span>
+            </div>
+          </li>
         {/each}
       </ul>
     {/if}
@@ -98,12 +88,6 @@
   h3 {
     margin-top: 0px;
     margin-bottom: 0px;
-  }
-
-  label {
-    user-select: none;
-    text-wrap: nowrap;
-    border-bottom: 1px solid gray;
   }
 
   ul {
@@ -125,6 +109,16 @@
 
   .filter-buttons-group {
     float: right;
+  }
+
+  .li-display-text {
+    user-select: none;
+    text-wrap: nowrap;
+  }
+
+  .li-inner-container {
+    display: flex;
+    border-bottom: 1px solid gray;
   }
 
   .search-input {
