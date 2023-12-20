@@ -54,7 +54,12 @@ export const runningQueue = writable(
         if (errorInfo && errorInfo.message) {
           action.error = errorInfo.message;
         } else {
-          action.error = error + "";
+          try {
+            action.error = error + "";
+          } catch (e) {
+            action.error = "Unknown error occurred";
+            console.error(error);
+          }
         }
       }
 
