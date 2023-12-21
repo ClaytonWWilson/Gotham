@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SearchableChecklist from "../components/SearchableChecklist.svelte";
+  import SearchableChecklist from "../components/SearchableList.svelte";
   import { DEFAULT_FILTERS } from "../lib/defaults";
   import { STATION_NAME_REGEX } from "../lib/utilites";
   import { roomList, settings } from "../stores";
@@ -72,7 +72,7 @@
     {#if autoHideRoomsListVisible}
       <div class="checklist-container">
         <SearchableChecklist
-          itemString="Rooms"
+          title="Rooms"
           {filterRules}
           loading={$roomList.loading}
           bind:checklistItems={roomsChecklist}

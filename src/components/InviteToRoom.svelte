@@ -5,7 +5,7 @@
   import { contactList, roomList, plannedQueue } from "../stores";
   import type { APIAction, APIRequest } from "../types/api";
   import type { FilterRule, JobChecklistItem } from "../types/ui";
-  import SearchableChecklist from "./SearchableChecklist.svelte";
+  import SearchableChecklist from "./SearchableList.svelte";
 
   let roomsChecklist: JobChecklistItem[] = [];
 
@@ -77,7 +77,7 @@
   <div class="lists-wrapper">
     <div class="checklist-container">
       <SearchableChecklist
-        itemString="Rooms"
+        title="Rooms"
         filterRules={roomFilterRules}
         bind:checklistItems={roomsChecklist}
         loading={$roomList.loading}
@@ -87,7 +87,7 @@
     </div>
     <div class="checklist-container">
       <SearchableChecklist
-        itemString="Contacts"
+        title="Contacts"
         bind:checklistItems={contactsChecklist}
         loading={$contactList.loading}
         on:select={(event) =>

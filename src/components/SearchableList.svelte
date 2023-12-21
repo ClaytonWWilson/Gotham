@@ -6,9 +6,10 @@
   const dispatch = createEventDispatcher();
 
   export let checklistItems: JobChecklistItem[] = [];
-  export let itemString = "Items";
+  export let title = "Items";
   export let loading = false;
   export let filterRules: FilterRule[] = DEFAULT_FILTERS;
+  export let type: "checkbox" | "radio" = "checkbox";
 
   function dispatchSelectEvent() {
     dispatch("select", {
@@ -16,7 +17,13 @@
     });
   }
 
-  function itemSelectHandler(item: JobChecklistItem) {
+  function itemCheckHandler(item: JobChecklistItem) {
+    if (item.checked) {
+      selectedItemsCount--;
+    } else {
+      selectedItemsCount++;
+    }
+
     item.checked = !item.checked;
     checklistItems = checklistItems;
     dispatchSelectEvent();
@@ -46,7 +53,7 @@
 </script>
 
 <div class="container">
-  <h3>{itemString}: {checklistItems.length}</h3>
+  <h3>{title}: {checklistItems.length}</h3>
   <div>
     <span class="title">selected: {selectedItemsCount}</span>
     <div class="filter-buttons-group">
@@ -64,16 +71,41 @@
   <input type="search" class="search-input" bind:value={searchString} />
   <div class="ul-container">
     {#if loading}
-      Loaded {checklistItems.length} {itemString}...
+      Loaded {checklistItems.length} {title}...
     {:else}
       <ul>
         {#each filteredItemsCheckList as item}
-          <li on:click={() => itemSelectHandler(item)} on:keydown={() => {}}>
-            <div class="li-inner-container">
-              <input type="checkbox" checked={item.checked} />
-              <span class="li-display-text">{item.name}</span>
-            </div>
-          </li>
+          <label>
+            {#if type === "checkbox"}
+              <input
+                type="checkbox"
+                checked={item.checked}
+                value={item}
+                on:change={() => {
+                  itemCheckHandler(item);
+                  dispatchSelectEvent();
+                }}
+              />
+            {:else if type === "radio"}
+              <input
+                type="radio"
+                value={item}
+                on:change={() => {
+                  itemCheckHandler(item);
+                  dispatchSelectEvent();
+                }}
+              />
+            {:else}
+              <input
+                value={item}
+                on:change={() => {
+                  itemCheckHandler(item);
+                  dispatchSelectEvent();
+                }}
+              />
+            {/if}
+            {item.name}
+          </label>
         {/each}
       </ul>
     {/if}
@@ -88,6 +120,13 @@
   h3 {
     margin-top: 0px;
     margin-bottom: 0px;
+  }
+
+  label {
+    display: block;
+    user-select: none;
+    text-wrap: nowrap;
+    border-bottom: 1px solid gray;
   }
 
   ul {
@@ -109,16 +148,6 @@
 
   .filter-buttons-group {
     float: right;
-  }
-
-  .li-display-text {
-    user-select: none;
-    text-wrap: nowrap;
-  }
-
-  .li-inner-container {
-    display: flex;
-    border-bottom: 1px solid gray;
   }
 
   .search-input {
