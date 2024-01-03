@@ -2,11 +2,54 @@ import { expect, test } from "@playwright/test";
 import AwaitedQueueProcessor from "../src/lib/AwaitedQueueProcessor";
 import { sleepms } from "../src/lib/utilites";
 
-const emptyAsyncFunc = () => {
+interface QueryablePromise<T> extends Promise<T> {
+  isPending: () => boolean;
+  isFulfilled: () => boolean;
+  isRejected: () => boolean;
+}
+// https://ourcodeworld.com/articles/read/317/how-to-check-if-a-javascript-promise-has-been-fulfilled-rejected-or-resolved
+function MakeQueryablePromise(promise: Promise<any> | QueryablePromise<any>) {
+  // Don't modify any promise that has been already modified.
+  if (Object.keys(promise).includes("isFullfilled"))
+    return promise as QueryablePromise<any>;
+
+  const queryablePromise = promise as QueryablePromise<any>;
+  // Set initial state
+  let isPending = true;
+  let isRejected = false;
+  let isFulfilled = false;
+
+  // Observe the promise, saving the fulfillment in a closure scope.
+  const result: QueryablePromise<any> = queryablePromise.then(
+    function (v) {
+      isFulfilled = true;
+      isPending = false;
+      return v;
+    },
+    function (e) {
+      isRejected = true;
+      isPending = false;
+      throw e;
+    }
+  ) as QueryablePromise<any>;
+
+  result.isFulfilled = function () {
+    return isFulfilled;
+  };
+  result.isPending = function () {
+    return isPending;
+  };
+  result.isRejected = function () {
+    return isRejected;
+  };
+  return result;
+}
+
+function emptyAsyncFunc() {
   return new Promise<void>((resolve, reject) => {
     resolve();
   });
-};
+}
 
 test("Constructor", async () => {
   const qp = new AwaitedQueueProcessor(emptyAsyncFunc, 50);
@@ -276,6 +319,28 @@ test.describe("Run functionality", () => {
     }
   });
 
+  test("Queue stops running if the asynccallbackfn throws and promise rejects", async () => {
+    const values = [0, 1, 2, 3, 4];
+    let counter = 0;
+    const incrementAndThrow = async () => {
+      counter++;
+      throw new Error();
+    };
+
+    let qp = new AwaitedQueueProcessor<number, void>(incrementAndThrow, 500);
+    qp.enqueue(...values);
+
+    try {
+      await qp.run();
+    } catch (_) {}
+
+    await sleepms(500 * (values.length + 1));
+
+    expect(qp.length).toBe(values.length - 1);
+    expect(qp.isRunning()).toBe(false);
+    expect(counter).toBe(1);
+  });
+
   test("IsRunning is accurate", async () => {
     const values = [0, 1, 2, 3, 4];
 
@@ -293,12 +358,234 @@ test.describe("Run functionality", () => {
   });
 });
 
-test("Stop while running queue", async () => {
+test.describe("RunIndefinite functionality", () => {
+  test("RunIndefinite executes all functions", async () => {
+    const values = [0, 1, 2, 3, 4];
+    let counter = 0;
+
+    const incrementCounter = async (_val: number) => {
+      counter++;
+    };
+
+    let qp = new AwaitedQueueProcessor<number, void>(incrementCounter, 50);
+
+    qp.enqueue(...values);
+    qp.runIndefinite();
+
+    await sleepms(50 * (values.length + 5));
+
+    expect(counter).toBe(values.length);
+    expect(qp.length).toBe(0);
+  });
+
+  test("RunIndefinite waits between function calls", async () => {
+    const values = [0, 1, 2, 3, 4];
+    let counter = 0;
+    const incrementCounter = async () => {
+      counter++;
+    };
+    let qp = new AwaitedQueueProcessor<number, void>(incrementCounter, 500);
+    qp.enqueue(...values);
+    qp.runIndefinite();
+    await sleepms(1000);
+
+    // Total wait time of the runIndefinite function should be 2500ms, whereas we are only
+    // waiting 1000ms. Items should still be processing.
+    expect(counter).toBeLessThan(values.length);
+
+    await sleepms(2000);
+    expect(counter).toBe(values.length);
+    expect(qp.length).toBe(0);
+  });
+
+  test("RunIndefinite with empty queue", async () => {
+    let qp = new AwaitedQueueProcessor<number, void>(emptyAsyncFunc, 50);
+    qp.runIndefinite();
+    await sleepms(500);
+    expect(qp.length).toBe(0);
+  });
+
+  test("Calling runIndefinite multiple times will not start multiple running queues", async () => {
+    const values = [0, 1, 2, 3, 4];
+    let counter = 0;
+    const incrementCounter = async () => {
+      counter++;
+    };
+    let qp = new AwaitedQueueProcessor<number, void>(incrementCounter, 500);
+    qp.enqueue(...values);
+
+    for (let i = 0; i < 5; i++) {
+      qp.runIndefinite();
+    }
+
+    await sleepms(5000);
+
+    expect(counter).toBe(values.length);
+    expect(qp.length).toBe(0);
+  });
+
+  test("Execute new tasks that are enqueued while running", async () => {
+    const values1 = [0, 1, 2, 3, 4];
+    const values2 = [5, 6, 7, 8, 9];
+    let counter = 0;
+    const incrementCounter = async () => {
+      counter++;
+    };
+    let qp = new AwaitedQueueProcessor<number, void>(incrementCounter, 500);
+    qp.enqueue(...values1);
+
+    qp.runIndefinite();
+
+    await sleepms(1000);
+
+    qp.enqueue(...values2);
+
+    await sleepms(500 * (values1.length + values2.length) + 1000);
+
+    expect(counter).toBe(values1.length + values2.length);
+    expect(qp.length).toBe(0);
+  });
+
+  test("Queue continues running after queue is exhausted", async () => {
+    const values = [0, 1, 2, 3, 4];
+    let counter = 0;
+    const incrementCounter = async () => {
+      counter++;
+    };
+
+    let qp = new AwaitedQueueProcessor<number, void>(incrementCounter, 500);
+    qp.enqueue(...values);
+
+    qp.runIndefinite();
+
+    await sleepms(500 * (values.length + 1));
+
+    expect(qp.length).toBe(0);
+    expect(qp.isRunning()).toBe(true);
+    qp.enqueue(...values);
+
+    await sleepms(500 * (values.length + 1));
+    expect(qp.length).toBe(0);
+    expect(counter).toBe(values.length * 2);
+  });
+
+  test("Queue continues running even if the asynccallbackfn throws", async () => {
+    const values = [0, 1, 2, 3, 4];
+    let counter = 0;
+    const incrementAndThrow = async () => {
+      counter++;
+      throw new Error();
+    };
+
+    let qp = new AwaitedQueueProcessor<number, void>(incrementAndThrow, 500);
+    qp.enqueue(...values);
+
+    qp.runIndefinite();
+
+    await sleepms(500 * (values.length + 1));
+
+    expect(qp.length).toBe(0);
+    expect(qp.isRunning()).toBe(true);
+    expect(counter).toBe(values.length);
+  });
+
+  test("RunIndefinite resolves when stop is called", async () => {
+    const qp = new AwaitedQueueProcessor<number, void>(emptyAsyncFunc, 500);
+    const promise = qp.runIndefinite();
+    const queryablePromise = MakeQueryablePromise(promise);
+    expect(queryablePromise.isPending()).toBe(true);
+
+    await sleepms(1000);
+    expect(queryablePromise.isPending()).toBe(true);
+
+    await qp.stop();
+    expect(queryablePromise.isFulfilled()).toBe(true);
+  });
+});
+
+test.describe("Stop functionality", () => {
+  test("Stop while running queue with run", async () => {
+    const values = [0, 1, 2, 3, 4];
+    let qp = new AwaitedQueueProcessor<number, void>(emptyAsyncFunc, 1000);
+    qp.enqueue(...values);
+    qp.run();
+    await sleepms(1000);
+    await qp.stop();
+    expect(qp.length).toBeGreaterThan(0);
+  });
+
+  test("Stop while running queue with runIndefinite", async () => {
+    const values = [0, 1, 2, 3, 4];
+    let qp = new AwaitedQueueProcessor<number, void>(emptyAsyncFunc, 1000);
+    qp.enqueue(...values);
+    qp.runIndefinite();
+    await sleepms(1000);
+    await qp.stop();
+    expect(qp.length).toBeGreaterThan(0);
+    expect(qp.isRunning()).toBe(false);
+  });
+});
+
+test("Run and runIndefinite don't conflict with each other", async () => {
   const values = [0, 1, 2, 3, 4];
-  let qp = new AwaitedQueueProcessor<number, void>(emptyAsyncFunc, 1000);
+  let counter = 0;
+
+  const incrementCounter = async () => {
+    counter++;
+  };
+
+  let qp1 = new AwaitedQueueProcessor<number, void>(incrementCounter, 1000);
+  let qp2 = new AwaitedQueueProcessor<number, void>(incrementCounter, 1000);
+
+  qp1.enqueue(...values);
+  qp2.enqueue(...values);
+
+  const runPromise = qp1.run();
+  await sleepms(1000);
+  const queryablePromise1 = MakeQueryablePromise(qp1.runIndefinite());
+  await sleepms(0);
+  expect(queryablePromise1.isFulfilled()).toBe(true);
+  expect(qp1.isRunning()).toBe(true);
+  await runPromise;
+  expect(qp1.isRunning()).toBe(false);
+  expect(counter).toBe(values.length);
+
+  counter = 0;
+  qp2.runIndefinite();
+  await sleepms(1000);
+  const queryablePromise2 = MakeQueryablePromise(qp2.run());
+  await sleepms(0);
+  expect(queryablePromise2.isFulfilled()).toBe(true);
+  expect(qp2.isRunning()).toBe(true);
+
+  await sleepms(5000);
+  expect(qp2.isRunning()).toBe(true);
+  expect(counter).toBe(values.length);
+});
+
+test("Change waitms while running", async () => {
+  const values = [0, 1, 2, 3, 4];
+  let counter = 0;
+
+  const incrementCounter = async () => {
+    counter++;
+  };
+
+  let qp = new AwaitedQueueProcessor<number, void>(incrementCounter, 1000);
   qp.enqueue(...values);
   qp.run();
-  await sleepms(1000);
-  await qp.stop();
-  expect(qp.length).toBeGreaterThan(0);
+  await sleepms(0);
+  qp.waitms = 10;
+  await sleepms(2000);
+  expect(qp.isRunning()).toBe(false);
+  expect(qp.length).toBe(0);
+
+  qp.waitms = 1000;
+  qp.enqueue(...values);
+  qp.runIndefinite();
+  await sleepms(0);
+  qp.waitms = 10;
+  await sleepms(2000);
+  expect(qp.isRunning()).toBe(true);
+  expect(qp.length).toBe(0);
 });

@@ -4,7 +4,7 @@ export const STATION_NAME_REGEX =
   /^\s?((AMXL)?.?[A-Z]{3}[1-9]{1}.?.?(-|–).?.Central[\s]?Ops.?(-|–).?[A-Za-z]+)|DON3 - East - Central Ops$/g;
 
 export async function sleepms(milliseconds: number) {
-  await new Promise<void>((resolve, reject) => {
+  return new Promise<void>((resolve, _reject) => {
     setTimeout(() => {
       resolve();
     }, milliseconds);
