@@ -69,12 +69,14 @@ export default class AwaitedQueueProcessor<T, U> implements Queue<T> {
         await sleepms(this.waitms);
       }
     } catch (error) {
-      console.error("Following error occurred while running", error);
-    } finally {
       this.running = false;
       this.stopped = false;
-      return results;
+      throw error;
     }
+
+    this.running = false;
+    this.stopped = false;
+    return results;
   }
 
   /**
@@ -82,13 +84,13 @@ export default class AwaitedQueueProcessor<T, U> implements Queue<T> {
    * Runs the queue continuously until stopped.
    */
   async runIndefinite() {
-    try {
-      console.log("checking");
-      if (this.running) return;
-      console.log("not running yet");
-      this.running = true;
-      let index = 0;
-      while (!this.stopped) {
+    console.log("checking");
+    if (this.running) return;
+    console.log("not running yet");
+    this.running = true;
+    let index = 0;
+    while (!this.stopped) {
+      try {
         console.log("inner loop");
         await sleepms(this.waitms);
         const current: T | undefined = this.dequeue();
@@ -98,13 +100,13 @@ export default class AwaitedQueueProcessor<T, U> implements Queue<T> {
 
         await this.asynccallbackfn(current, index);
         index++;
+      } catch (error) {
+        console.error("Following error occurred while running", error);
       }
-    } catch (error) {
-      console.error("Following error occurred while running", error);
-    } finally {
-      this.running = false;
-      this.stopped = false;
     }
+
+    this.running = false;
+    this.stopped = false;
   }
 
   async stop() {
