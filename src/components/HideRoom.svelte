@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SearchableChecklist from "./SearchableList.svelte";
+  import SearchableList from "./SearchableList.svelte";
 
   import { link } from "svelte-spa-router";
   import { STATION_NAME_REGEX } from "../lib/utilites";
@@ -54,7 +54,7 @@
 </script>
 
 <div class="hide-rooms-container">
-  <SearchableChecklist
+  <SearchableList
     title="Visible Rooms"
     bind:checklistItems={roomsChecklist}
     loading={$roomList.loading}

@@ -18,6 +18,12 @@
   }
 
   function itemCheckHandler(item: JobChecklistItem) {
+    if (type === "radio") {
+      checklistItems.forEach((v) => {
+        v.checked = false;
+      });
+    }
+
     if (item.checked) {
       selectedItemsCount--;
     } else {
@@ -42,7 +48,7 @@
     dispatchSelectEvent();
   }
 
-  $: filteredItemsCheckList = checklistItems.filter((item) => {
+  $: filteredList = checklistItems.filter((item) => {
     if (!searchString) return true;
 
     return item.name.toLowerCase().match(searchString.toLowerCase());
@@ -74,39 +80,44 @@
       Loaded {checklistItems.length} {title}...
     {:else}
       <ul>
-        {#each filteredItemsCheckList as item}
-          <label>
-            {#if type === "checkbox"}
-              <input
-                type="checkbox"
-                checked={item.checked}
-                value={item}
-                on:change={() => {
-                  itemCheckHandler(item);
-                  dispatchSelectEvent();
-                }}
-              />
-            {:else if type === "radio"}
-              <input
-                type="radio"
-                value={item}
-                on:change={() => {
-                  itemCheckHandler(item);
-                  dispatchSelectEvent();
-                }}
-              />
-            {:else}
-              <input
-                value={item}
-                on:change={() => {
-                  itemCheckHandler(item);
-                  dispatchSelectEvent();
-                }}
-              />
-            {/if}
-            {item.name}
-          </label>
-        {/each}
+        <fieldset>
+          {#each filteredList as item}
+            <label>
+              {#if type === "checkbox"}
+                <input
+                  type="checkbox"
+                  name={title}
+                  checked={item.checked}
+                  value={item}
+                  on:change={() => {
+                    itemCheckHandler(item);
+                    dispatchSelectEvent();
+                  }}
+                />
+              {:else if type === "radio"}
+                <input
+                  type="radio"
+                  name={title}
+                  value={item}
+                  on:change={() => {
+                    itemCheckHandler(item);
+                    dispatchSelectEvent();
+                  }}
+                />
+              {:else}
+                <input
+                  value={item}
+                  name={title}
+                  on:change={() => {
+                    itemCheckHandler(item);
+                    dispatchSelectEvent();
+                  }}
+                />
+              {/if}
+              {item.name}
+            </label>
+          {/each}
+        </fieldset>
       </ul>
     {/if}
   </div>
