@@ -35,7 +35,6 @@
   function runPlanned() {
     $runningQueue.enqueue(...$plannedQueue.drain());
     $plannedQueue = $plannedQueue;
-    $runningQueue.run();
     $runningQueue = $runningQueue;
   }
 

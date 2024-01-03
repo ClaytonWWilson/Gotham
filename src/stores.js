@@ -78,12 +78,17 @@ export const runningQueue = writable(
       }
     }
 
-    // Update this list for subscribers
+    // Updates this list for subscribers
     runningQueue.update((prev) => prev);
 
     return response;
   }, DEFAULT_APP_SETTINGS.requestWaitSeconds * 1000)
 );
+
+runningQueue.update((prev) => {
+  prev.runIndefinite();
+  return prev;
+});
 
 /**
  * @type import("svelte/store").Writable.<AwaitedQueueProcessor.<import("./types/api").APIAction, void>>

@@ -108,7 +108,6 @@
         });
 
         $runningQueue = $runningQueue;
-        $runningQueue.run();
 
         openHideableRooms.forEach((_, storedId) => {
           if (!autoHideRoomIds.has(storedId)) {

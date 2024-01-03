@@ -58,19 +58,53 @@ export default class AwaitedQueueProcessor<T, U> implements Queue<T> {
     this.running = true;
     let index = 0;
     const results: Awaited<U>[] = [];
-    while (!this.stopped && this.queue.length > 0) {
-      const result: Awaited<U> = await this.asynccallbackfn(
-        this.dequeue(),
-        index
-      );
-      index++;
-      results.push(result);
-      await sleepms(this.waitms);
+    try {
+      while (!this.stopped && this.queue.length > 0) {
+        const result: Awaited<U> = await this.asynccallbackfn(
+          this.dequeue(),
+          index
+        );
+        index++;
+        results.push(result);
+        await sleepms(this.waitms);
+      }
+    } catch (error) {
+      console.error("Following error occurred while running", error);
+    } finally {
+      this.running = false;
+      this.stopped = false;
+      return results;
     }
+  }
 
-    this.running = false;
-    this.stopped = false;
-    return results;
+  /**
+   *
+   * Runs the queue continuously until stopped.
+   */
+  async runIndefinite() {
+    try {
+      console.log("checking");
+      if (this.running) return;
+      console.log("not running yet");
+      this.running = true;
+      let index = 0;
+      while (!this.stopped) {
+        console.log("inner loop");
+        await sleepms(this.waitms);
+        const current: T | undefined = this.dequeue();
+
+        if (current === undefined) continue;
+        console.log("running function");
+
+        await this.asynccallbackfn(current, index);
+        index++;
+      }
+    } catch (error) {
+      console.error("Following error occurred while running", error);
+    } finally {
+      this.running = false;
+      this.stopped = false;
+    }
   }
 
   async stop() {
