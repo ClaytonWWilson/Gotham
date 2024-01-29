@@ -9,6 +9,8 @@ export default class AwaitedQueueProcessor<T, U> implements Queue<T> {
   private running: boolean;
   items: T[];
   length: number;
+  lastRun: Date | null;
+  continuousRun: boolean;
 
   constructor(
     asynccallbackfn: (queueItem: T, index: number) => Promise<U>,
@@ -21,11 +23,17 @@ export default class AwaitedQueueProcessor<T, U> implements Queue<T> {
     this.length = 0;
     this.running = false;
     this.stopped = false;
+    this.lastRun = null;
+    this.continuousRun = false;
   }
 
   enqueue(...items: T[]) {
     this.queue.enqueue(...items);
     this.length = this.queue.length;
+
+    if (this.continuousRun) {
+      this.runIndefinite();
+    }
   }
 
   dequeue() {
@@ -53,7 +61,20 @@ export default class AwaitedQueueProcessor<T, U> implements Queue<T> {
   }
 
   async run() {
-    if (this.running) return [] as Awaited<U>[];
+    if (this.lastRun === null) {
+      this.lastRun = new Date();
+    }
+
+    let msSinceLastRun = new Date().valueOf() - this.lastRun.valueOf();
+
+    if (msSinceLastRun > this.waitms * 2) {
+      // Queue was running at some point, but the browser killed the thread
+      await this.stop();
+    }
+
+    if (this.running) {
+      return [] as Awaited<U>[];
+    }
 
     this.running = true;
     let index = 0;
@@ -64,6 +85,8 @@ export default class AwaitedQueueProcessor<T, U> implements Queue<T> {
           this.dequeue(),
           index
         );
+
+        this.lastRun = new Date();
         index++;
         results.push(result);
         await sleepms(this.waitms);
@@ -84,21 +107,35 @@ export default class AwaitedQueueProcessor<T, U> implements Queue<T> {
    * Runs the queue continuously until stopped.
    */
   async runIndefinite() {
-    console.log("checking");
+    if (this.stopped) {
+      return;
+    }
+
+    if (this.lastRun === null) {
+      this.lastRun = new Date();
+    }
+
+    let msSinceLastRun = new Date().valueOf() - this.lastRun.valueOf();
+
+    if (msSinceLastRun > this.waitms * 2) {
+      // Queue was running at some point, but the browser killed the thread
+      await this.stop();
+    }
+
     if (this.running) return;
-    console.log("not running yet");
+
     this.running = true;
+    this.continuousRun = true;
     let index = 0;
     while (!this.stopped) {
       try {
-        console.log("inner loop");
         await sleepms(this.waitms);
         const current: T | undefined = this.dequeue();
 
         if (current === undefined) continue;
-        console.log("running function");
 
         await this.asynccallbackfn(current, index);
+        this.lastRun = new Date();
         index++;
       } catch (error) {
         console.error("Following error occurred while running", error);
@@ -107,13 +144,23 @@ export default class AwaitedQueueProcessor<T, U> implements Queue<T> {
 
     this.running = false;
     this.stopped = false;
+    this.continuousRun = false;
   }
 
   async stop() {
     this.stopped = true;
 
+    let stoppedAt = new Date();
+
     while (this.running) {
       await sleepms(1);
+
+      let msSinceStopped = new Date().valueOf() - stoppedAt.valueOf();
+
+      if (msSinceStopped >= this.waitms * 10) {
+        // Main thread was stopped by the browser at some point and needs to be manually stopped
+        this.running = false;
+      }
     }
 
     this.stopped = false;

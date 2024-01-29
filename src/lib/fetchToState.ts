@@ -1,5 +1,7 @@
 import { roomList, contactList } from "../stores";
-import { sendApiRequest, sleepms } from "./utilites";
+import { logger } from "../loggerStore";
+import { sleepms } from "./utilites";
+import { sendApiRequest } from "./sendRequest";
 import type {
   APIRequest,
   ChimeContactApiResponse,
@@ -34,7 +36,10 @@ export async function fetchChimeRooms() {
       await sleepms(1000);
       next = responseJson.NextToken;
     } catch (error) {
-      console.error(error);
+      logger.update((log) => {
+        log.fatal("Error occurred while fetching chime rooms", error);
+        return log;
+      });
       break;
     }
   }
@@ -64,7 +69,10 @@ export async function fetchChimeContacts() {
       return prev;
     });
   } catch (error) {
-    console.error(error);
+    logger.update((log) => {
+      log.fatal("Error occurred while fetching chime contacts", error);
+      return log;
+    });
   }
 
   contactList.update((prev) => {

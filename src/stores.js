@@ -1,10 +1,7 @@
 import { writable } from "svelte/store";
 import AwaitedQueueProcessor from "./lib/AwaitedQueueProcessor";
-import {
-  HIDE_ROOMS_ERRORS_MAP,
-  INVITE_ERRORS_MAP,
-  processAPIAction,
-} from "./lib/utilites";
+import { HIDE_ROOMS_ERRORS_MAP, INVITE_ERRORS_MAP } from "./lib/utilites";
+import { processAPIAction } from "./lib/sendRequest";
 import { DEFAULT_APP_SETTINGS } from "./lib/defaults";
 
 /**

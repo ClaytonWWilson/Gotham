@@ -5,14 +5,23 @@
   import { getIntersection, leftPad } from "./lib/utilites";
   import { routes } from "./routes.js";
   import { roomList, runningQueue, settings } from "./stores";
-  import type { APIAction, APIRequest } from "./types/api";
+  import { logger } from "./loggerStore";
+  import type { APIAction, APIRequest, ChimeRoom } from "./types/api";
 
   export let rootId: string;
+
+  // Catch page navigations and refreshes to write all logs to tampermonkey storage
+  window.onbeforeunload = () => {
+    $logger.flush();
+  };
 
   let navTitle = "Gotham - Home";
 
   async function autoHideRooms() {
-    const openHideableRooms = new Map<string, { joinedAt: Date }>();
+    const openHideableRooms = new Map<
+      string,
+      { joinedAt: Date; name: string }
+    >();
 
     window.addEventListener("locationchange", (e: Event) => {
       const eventWindow = e.currentTarget as Window;
@@ -21,8 +30,15 @@
         .slice(currentUrl.lastIndexOf("/") + 1)
         .replaceAll("/", "");
 
-      if (openHideableRooms.has(enteredRoomId)) {
-        openHideableRooms.set(enteredRoomId, { joinedAt: new Date() });
+      let enteredRoom: ChimeRoom | undefined = $roomList.rooms.find((room) => {
+        return room.RoomId === enteredRoomId;
+      });
+
+      if (enteredRoom && openHideableRooms.has(enteredRoomId)) {
+        openHideableRooms.set(enteredRoomId, {
+          joinedAt: new Date(),
+          name: enteredRoom.Name,
+        });
       }
     });
 
@@ -35,7 +51,7 @@
         );
 
         if (!visibleRoomsContainerElement) {
-          console.error("Can't find Chime rooms list");
+          $logger.warn("Can't find Chime rooms list");
           return;
         }
 
@@ -48,7 +64,7 @@
             | undefined;
 
           if (!anchor) {
-            console.error("Can't find channel link");
+            $logger.warn("Can't find channel link");
             return;
           }
 
@@ -66,20 +82,41 @@
         );
 
         const now = new Date();
-        const currentUrl = window.location.href;
+        let currentUrl = window.location.href;
+
+        if (currentUrl.endsWith("#/")) {
+          currentUrl = currentUrl.slice(0, -2);
+        }
+
         const currentRoomId = currentUrl
           .slice(currentUrl.lastIndexOf("/") + 1)
           .replaceAll("/", "");
-        if (openHideableRooms.has(currentRoomId)) {
-          openHideableRooms.set(currentRoomId, { joinedAt: now });
+
+        const currentRoom: ChimeRoom | undefined = $roomList.rooms.find(
+          (room) => {
+            return room.RoomId === currentRoomId;
+          }
+        );
+
+        if (currentRoom && openHideableRooms.has(currentRoomId)) {
+          openHideableRooms.set(currentRoomId, {
+            joinedAt: now,
+            name: currentRoom.Name,
+          });
         }
 
         autoHideRoomIds.forEach((roomId) => {
-          let stored: { joinedAt: Date } | undefined =
+          let stored: { joinedAt: Date; name: string } | undefined =
             openHideableRooms.get(roomId);
 
+          const roomInfo: ChimeRoom | undefined = $roomList.rooms.find(
+            (room) => {
+              return room.RoomId === roomId;
+            }
+          );
+
           if (!stored) {
-            stored = { joinedAt: now };
+            stored = { joinedAt: now, name: roomInfo ? roomInfo.Name : roomId };
             openHideableRooms.set(roomId, stored);
           }
 
@@ -99,7 +136,7 @@
               request,
               action: "HIDE",
               createdAt: new Date(),
-              displayMessage: `Auto-hide room ${roomId}`,
+              displayMessage: `Auto-hide ${roomInfo ? roomInfo.Name : roomId}`,
               status: "QUEUED",
               retries: 5,
             };
@@ -117,6 +154,14 @@
       },
       1 * 60 * 1000
     );
+  }
+
+  async function copyLogsToClipboard() {
+    const text = await $logger.exportGzipped(1000);
+    GM_setClipboard(text, {
+      type: "text",
+      mimetype: "text/plain",
+    });
   }
 
   fetchChimeRooms();
@@ -163,6 +208,10 @@
             fetchChimeRooms();
             fetchChimeContacts();
           }}>Refresh Data</button
+        >
+        <button
+          class="refresh-button"
+          on:click={async () => copyLogsToClipboard()}>Copy Logs</button
         >
         {#if $roomList.updatedAt}
           <span class="last-updated"
