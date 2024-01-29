@@ -3,24 +3,32 @@ import { Logger } from "../src/lib/Logger";
 
 // Can't use tampermonkey since the tampermonkey functions are not defined in the testing suite
 test("Constructors", () => {
-  const _logger1 = new Logger({ tampermonkey: false });
-  const _logger2 = new Logger({ console: true });
-  const _logger3 = new Logger({ console: false, tampermonkey: false });
-  const _logger4 = new Logger({ callback: () => {} });
+  const _logger1 = new Logger({
+    outputs: { tampermonkey: { enabled: false } },
+  });
+  const _logger2 = new Logger({ outputs: { console: { enabled: true } } });
+  const _logger3 = new Logger({
+    outputs: { console: { enabled: false }, tampermonkey: { enabled: false } },
+  });
+  const _logger4 = new Logger({ outputs: { callback: () => {} } });
   const _logger5 = new Logger({
-    console: true,
-    tampermonkey: false,
-    callback: () => {},
+    outputs: {
+      console: { enabled: true },
+      tampermonkey: { enabled: false },
+      callback: () => {},
+    },
   });
 });
 
 test("Log Messages", () => {
   let logs = "";
   const logger = new Logger({
-    tampermonkey: false,
-    console: false,
-    callback: (message) => {
-      logs += message + "\n";
+    outputs: {
+      tampermonkey: { enabled: false },
+      console: { enabled: false },
+      callback: (message) => {
+        logs += message + "\n";
+      },
     },
   });
   logger.log("logging a");
@@ -56,8 +64,11 @@ test("Log Messages", () => {
 test("Log messages with context", () => {
   let logs = "";
   const logger = new Logger({
-    callback: (message) => {
-      logs += message + "\n";
+    outputs: {
+      console: { enabled: false },
+      callback: (message) => {
+        logs += message + "\n";
+      },
     },
   });
 
@@ -76,12 +87,50 @@ test("Log messages with context", () => {
 test("Logs contain timestamps", () => {
   let logs = "";
   const logger = new Logger({
-    callback: (message) => {
-      logs += message + "\n";
+    outputs: {
+      console: { enabled: false },
+      callback: (message) => {
+        logs += message + "\n";
+      },
     },
   });
 
   logger.log("test");
 
   expect(logs).toMatch(/^[0-9]+-[0-9]+-[0-9]+T[0-9]+:[0-9]+:[0-9]+.[0-9]+Z/gm);
+});
+
+test("Overflow logs buffer", () => {
+  const logger = new Logger({
+    bufferCapacity: 100,
+    outputs: { console: { enabled: false } },
+  });
+
+  for (let i = 0; i < 100; i++) {
+    logger.log(`Iteration: ${i}`);
+  }
+
+  logger.log("done");
+});
+
+test("Export logs without tampermonkey", async () => {
+  const logger = new Logger({ outputs: { console: { enabled: false } } });
+  for (let i = 0; i < 10; i++) {
+    logger.log(`Iteration: ${i}`);
+  }
+
+  const export_one = await logger.export(1);
+
+  expect(export_one.length).toBe(1);
+  expect(export_one[0]).toContain("Iteration: 9");
+
+  const export_five = await logger.export(5);
+
+  expect(export_five.length).toBe(5);
+  expect(export_five[3]).toContain("Iteration: 8");
+
+  const export_all = await logger.export(100);
+
+  expect(export_all.length).toBe(10);
+  expect(export_all[9]).toContain("Iteration: 9");
 });

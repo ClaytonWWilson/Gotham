@@ -1,4 +1,4 @@
-import { gzip, randomString, stringifyInstance } from "./utilites";
+import { gzip, randomString, stringifyInstance, ungzip } from "./utilites";
 
 export enum LogLevel {
   TRACE = 10,
@@ -16,10 +16,25 @@ enum LogLabel {
   FATAL = "fatal",
 }
 
+export interface TampermonkeyOutputOpts {
+  enabled: boolean;
+  maxBuckets?: number;
+  bucketIndexKey?: string;
+}
+
+export interface ConsoleOutputOpts {
+  enabled: boolean;
+}
+
 export interface LogOutputs {
-  console?: boolean;
-  tampermonkey?: boolean;
-  callback?: (message: string) => any;
+  console?: ConsoleOutputOpts;
+  tampermonkey?: TampermonkeyOutputOpts;
+  callback?: (message: string) => any | undefined;
+}
+
+export interface LogConfig {
+  outputs?: LogOutputs;
+  bufferCapacity?: number;
 }
 
 export interface LogContext {
@@ -38,7 +53,19 @@ interface BucketInfo {
   createdAt: number;
 }
 
-const DEFAULT_OUTPUTS: LogOutputs = { console: true, tampermonkey: true };
+const DEFAULT_OUTPUTS: Required<LogOutputs> = {
+  console: { enabled: true },
+  tampermonkey: {
+    enabled: false,
+    maxBuckets: 10,
+    bucketIndexKey: "bucket_index",
+  },
+  callback: undefined,
+};
+const DEFAULT_CONFIG: Required<LogConfig> = {
+  outputs: DEFAULT_OUTPUTS,
+  bufferCapacity: 100_000,
+};
 const MESSAGE_STYLE = "background: inherit; color: inherit;";
 
 const STYLES = {
@@ -79,24 +106,51 @@ function getLabel(level: number) {
 }
 
 export class Logger {
-  private buffer: string;
+  private buffer: string[];
+  private bufferLength: number;
   private bucketIndex: BucketInfo[];
-  private bucketIndexKey: string;
-  private outputs: LogOutputs;
+  private outputs: Required<LogOutputs>;
+  private bufferCapacity: number;
 
-  constructor(
-    outputs: LogOutputs = DEFAULT_OUTPUTS,
-    bucketIndexKey: string = "bucket_index"
-  ) {
-    this.buffer = "";
-    this.outputs = outputs;
-    if (this.outputs.console === undefined) this.outputs.console = false;
-    if (this.outputs.tampermonkey === undefined)
-      this.outputs.tampermonkey = false;
+  constructor(config: LogConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG))) {
+    this.buffer = [];
+    this.bufferLength = 0;
+    this.bufferCapacity = config.bufferCapacity;
 
-    this.bucketIndexKey = bucketIndexKey;
-    if (this.outputs.tampermonkey) {
-      this.bucketIndex = GM_getValue(this.bucketIndexKey, []);
+    // Parse outputs config
+    if (!config.outputs) {
+      this.outputs = JSON.parse(JSON.stringify(DEFAULT_OUTPUTS));
+    } else {
+      this.outputs = {
+        console: {
+          enabled: config.outputs.console
+            ? config.outputs.console.enabled
+            : DEFAULT_OUTPUTS.console.enabled,
+        },
+        tampermonkey: {
+          enabled: config.outputs.tampermonkey
+            ? config.outputs.tampermonkey.enabled
+            : DEFAULT_OUTPUTS.tampermonkey.enabled,
+          bucketIndexKey:
+            config.outputs.tampermonkey &&
+            config.outputs.tampermonkey.bucketIndexKey
+              ? config.outputs.tampermonkey.bucketIndexKey
+              : DEFAULT_OUTPUTS.tampermonkey.bucketIndexKey,
+          maxBuckets:
+            config.outputs.tampermonkey &&
+            config.outputs.tampermonkey.maxBuckets
+              ? config.outputs.tampermonkey.maxBuckets
+              : DEFAULT_OUTPUTS.tampermonkey.maxBuckets,
+        },
+        callback: config.outputs.callback ? config.outputs.callback : undefined,
+      };
+    }
+
+    if (this.outputs.tampermonkey.enabled) {
+      this.bucketIndex = GM_getValue(
+        this.outputs.tampermonkey.bucketIndexKey,
+        []
+      );
     } else {
       this.bucketIndex = [];
     }
@@ -111,7 +165,7 @@ export class Logger {
       time: new Date().valueOf(),
     };
 
-    if (this.outputs.console) {
+    if (this.outputs.console.enabled) {
       this.consolePrint(label, message, meta);
     }
 
@@ -121,23 +175,29 @@ export class Logger {
       meta.context
     )}`;
 
-    if (this.outputs.tampermonkey) {
-      this.buffer += `${textOutput}\n`;
-    }
+    this.buffer.push(textOutput);
+    this.bufferLength += textOutput.length;
 
     if (this.outputs.callback) {
       this.outputs.callback(textOutput);
     }
 
-    if (this.buffer.length >= 100_000) {
-      this.flush();
+    if (this.bufferLength >= this.bufferCapacity) {
+      if (this.outputs.tampermonkey.enabled) {
+        this.flush();
+      } else {
+        while (this.bufferLength >= this.bufferCapacity) {
+          let stale = this.buffer.shift();
+          this.bufferLength -= stale.length;
+        }
+      }
     }
   }
 
   trace(message: string, context?: Object) {
     this.log(message, {
       level: LogLevel.TRACE,
-      stacktrace: new Error().stack.slice(13), // Remove the "Error"
+      stacktrace: new Error().stack.slice(13), // Remove the "Error\n    at "
       ...context,
     });
   }
@@ -213,16 +273,14 @@ export class Logger {
     }
   }
 
-  bufferLength() {
-    return this.buffer.length;
-  }
-
   async flush() {
     // Clear buffer
-    let tempBuffer = this.buffer;
-    this.buffer = "";
+    const stringifiedBuffer = JSON.stringify(this.buffer);
+    this.buffer = [];
+    this.bufferLength = 0;
 
-    if (!this.outputs.tampermonkey) {
+    // Don't flush unless tampermonkey output is enabled
+    if (!this.outputs.tampermonkey.enabled) {
       return;
     }
 
@@ -232,8 +290,8 @@ export class Logger {
       newBucketName = randomString(10);
     }
 
-    // gzip data
-    const gzipped = await gzip(tempBuffer);
+    // GZip data
+    const gzipped = await gzip(stringifiedBuffer);
 
     // Update bucketIndex with info
     const newBucket: BucketInfo = {
@@ -242,21 +300,24 @@ export class Logger {
       createdAt: new Date().valueOf(),
     };
 
-    // write bucketIndex to disk
+    // Write bucketIndex to disk
     this.bucketIndex.push(newBucket);
-    GM_setValue(this.bucketIndexKey, JSON.stringify(this.bucketIndex));
+    GM_setValue(
+      this.outputs.tampermonkey.bucketIndexKey,
+      JSON.stringify(this.bucketIndex)
+    );
 
-    // write gzipped data to new bucket
+    // Write gzipped data to new bucket
     GM_setValue(newBucketName, gzipped);
 
-    // delete old buckets if the number is too large
-    if (this.bucketIndex.length <= 10) {
+    if (this.bucketIndex.length <= this.outputs.tampermonkey.maxBuckets) {
       return;
     }
 
+    // Delete old buckets if the number is too large
     let oldBuckets = this.bucketIndex
       .sort((a, b) => a.createdAt - b.createdAt)
-      .slice(0, -10);
+      .slice(0, -this.bufferCapacity);
 
     oldBuckets.forEach((oldBucket) => {
       GM_deleteValue(oldBucket.name);
@@ -273,6 +334,51 @@ export class Logger {
     });
 
     // Update tampermonkey bucket index
-    GM_setValue(this.bucketIndexKey, JSON.stringify(this.bucketIndex));
+    GM_setValue(
+      this.outputs.tampermonkey.bucketIndexKey,
+      JSON.stringify(this.bucketIndex)
+    );
+  }
+
+  async export(amount: number) {
+    // Check if the buffer has the requested amount
+    if (this.buffer.length >= amount) {
+      return this.buffer.slice(this.buffer.length - amount);
+    }
+
+    // Only return buffer if tamppermonkey is disabled
+    if (!this.outputs.tampermonkey.enabled) {
+      return [...this.buffer];
+    }
+
+    let logs = [...this.buffer];
+
+    for (let i = this.bucketIndex.length - 1; i >= 0; i--) {
+      // Get name from index
+      const bucket = this.bucketIndex[i];
+      // Get data from bucket
+      const gzipped = GM_getValue(bucket.name, undefined);
+      if (gzipped === undefined) {
+        console.error("Bucket does not exist on disk", bucket);
+        continue;
+      }
+      // Ungzip and parse
+      const lines = JSON.parse(await ungzip(gzipped)) as string[];
+      // prepend to logs up to amount
+      if (logs.length + lines.length < amount) {
+        // Need to grab more from storage
+        logs.unshift(...lines);
+      } else if (logs.length + lines.length == amount) {
+        // Have the exact amount
+        logs.unshift(...lines);
+        break;
+      } else {
+        // Grab a slice of the exact amount needed
+        logs.unshift(...lines.slice(0, amount - logs.length));
+        break;
+      }
+    }
+
+    return logs;
   }
 }
