@@ -1,4 +1,5 @@
 import App from "./App.svelte";
+import { logger } from "./loggerStore";
 const componentRootId = "svelte-gotham-root";
 
 const target = document.createElement("div");
@@ -24,7 +25,12 @@ const bodyObserver = new MutationObserver((mutations) => {
 
       // Checking retry count
       if (retries >= MAX_RETRIES) {
-        console.error("Failed to correctly attach component. Giving up.");
+        logger.update((log) => {
+          log.fatal(
+            `Failed to correctly attach component to the DOM after ${MAX_RETRIES} attempts. Giving up.`
+          );
+          return log;
+        });
         return;
       }
 

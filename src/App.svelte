@@ -5,9 +5,15 @@
   import { getIntersection, leftPad } from "./lib/utilites";
   import { routes } from "./routes.js";
   import { roomList, runningQueue, settings } from "./stores";
+  import { logger } from "./loggerStore";
   import type { APIAction, APIRequest, ChimeRoom } from "./types/api";
 
   export let rootId: string;
+
+  // Catch page navigations and refreshes to write all logs to tampermonkey storage
+  window.onbeforeunload = () => {
+    $logger.flush();
+  };
 
   let navTitle = "Gotham - Home";
 
@@ -45,7 +51,7 @@
         );
 
         if (!visibleRoomsContainerElement) {
-          console.error("Can't find Chime rooms list");
+          $logger.warn("Can't find Chime rooms list");
           return;
         }
 
@@ -58,7 +64,7 @@
             | undefined;
 
           if (!anchor) {
-            console.error("Can't find channel link");
+            $logger.warn("Can't find channel link");
             return;
           }
 
@@ -150,6 +156,14 @@
     );
   }
 
+  async function copyLogsToClipboard() {
+    const text = await $logger.exportGzipped(1000);
+    GM_setClipboard(text, {
+      type: "text",
+      mimetype: "text/plain",
+    });
+  }
+
   fetchChimeRooms();
   fetchChimeContacts();
   autoHideRooms();
@@ -194,6 +208,10 @@
             fetchChimeRooms();
             fetchChimeContacts();
           }}>Refresh Data</button
+        >
+        <button
+          class="refresh-button"
+          on:click={async () => copyLogsToClipboard()}>Copy Logs</button
         >
         {#if $roomList.updatedAt}
           <span class="last-updated"

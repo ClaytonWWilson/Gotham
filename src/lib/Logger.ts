@@ -147,9 +147,8 @@ export class Logger {
     }
 
     if (this.outputs.tampermonkey.enabled) {
-      this.bucketIndex = GM_getValue(
-        this.outputs.tampermonkey.bucketIndexKey,
-        []
+      this.bucketIndex = JSON.parse(
+        GM_getValue(this.outputs.tampermonkey.bucketIndexKey, "[]")
       );
     } else {
       this.bucketIndex = [];
@@ -363,7 +362,14 @@ export class Logger {
         continue;
       }
       // Ungzip and parse
-      const lines = JSON.parse(await ungzip(gzipped)) as string[];
+      const ungzipped = await ungzip(gzipped);
+      let lines: string[] = [];
+      try {
+        lines = JSON.parse(ungzipped) as string[];
+      } catch (err) {
+        // Bucket has invalid or empty data
+        lines = [];
+      }
       // prepend to logs up to amount
       if (logs.length + lines.length < amount) {
         // Need to grab more from storage
@@ -380,5 +386,11 @@ export class Logger {
     }
 
     return logs;
+  }
+
+  async exportGzipped(amount: number) {
+    const lines = await this.export(amount);
+    const gzipped = await gzip(JSON.stringify(lines));
+    return gzipped;
   }
 }
