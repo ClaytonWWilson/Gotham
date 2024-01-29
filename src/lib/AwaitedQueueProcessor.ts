@@ -107,8 +107,6 @@ export default class AwaitedQueueProcessor<T, U> implements Queue<T> {
    * Runs the queue continuously until stopped.
    */
   async runIndefinite() {
-    console.log("checking");
-
     if (this.stopped) {
       return;
     }
