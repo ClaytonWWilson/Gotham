@@ -11,6 +11,10 @@ import type {
 const CHIME_ROOMS_BASE_URL = "https://api.express.ue1.app.chime.aws/msg/rooms/";
 
 export async function fetchChimeRooms() {
+  logger.update((log) => {
+    log.debug("Fetching chime rooms.");
+    return log;
+  });
   roomList.set({ loading: true, rooms: [] });
 
   let next: string | null = "";
@@ -49,9 +53,18 @@ export async function fetchChimeRooms() {
     prev.updatedAt = new Date();
     return prev;
   });
+
+  logger.update((log) => {
+    log.debug("Fetching Chime rooms complete.");
+    return log;
+  });
 }
 
 export async function fetchChimeContacts() {
+  logger.update((log) => {
+    log.debug("Fetching contacts.");
+    return log;
+  });
   contactList.set({ loading: true, contacts: [] });
   try {
     const request: APIRequest = {
@@ -79,5 +92,10 @@ export async function fetchChimeContacts() {
     prev.loading = false;
     prev.updatedAt = new Date();
     return prev;
+  });
+
+  logger.update((log) => {
+    log.debug("Fetching contacts complete.");
+    return log;
   });
 }

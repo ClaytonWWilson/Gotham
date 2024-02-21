@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Router, { link, push } from "svelte-spa-router";
+  import Router, { link, push, RouteLoadingEvent } from "svelte-spa-router";
   import NavBar from "./components/NavBar.svelte";
   import { fetchChimeContacts, fetchChimeRooms } from "./lib/fetchToState";
   import { getIntersection, leftPad } from "./lib/utilites";
@@ -11,7 +11,8 @@
   export let rootId: string;
 
   // Catch page navigations and refreshes to write all logs to tampermonkey storage
-  window.onbeforeunload = () => {
+  window.onbeforeunload = (e: BeforeUnloadEvent) => {
+    $logger.debug("Page closed or refreshed", e);
     $logger.flush();
   };
 
@@ -44,14 +45,18 @@
 
     setInterval(
       () => {
-        if (!$settings.autoHideEnabled) return;
+        $logger.debug("Starting auto-hide.");
+        if (!$settings.autoHideEnabled) {
+          $logger.debug("Auto-hide disabled");
+          return;
+        }
 
         const visibleRoomsContainerElement = document.querySelector(
           "#app > div.LayoutRoute > div > nav > div.Sidebar__discussions > div.RoomList > div.SortableList"
         );
 
         if (!visibleRoomsContainerElement) {
-          $logger.warn("Can't find Chime rooms list");
+          $logger.warn("Can't find Chime rooms list, stopping auto-hide");
           return;
         }
 
@@ -64,7 +69,10 @@
             | undefined;
 
           if (!anchor) {
-            $logger.warn("Can't find channel link");
+            $logger.warn(
+              "Can't find channel link in room element, stopping auto-hide",
+              roomElement
+            );
             return;
           }
 
@@ -151,6 +159,8 @@
             openHideableRooms.delete(storedId);
           }
         });
+
+        $logger.debug("Auto-hide complete");
       },
       1 * 60 * 1000
     );
@@ -171,9 +181,18 @@
   let appOpen = false;
 
   function hideApp() {
+    if (appOpen) {
+      $logger.debug("Hiding Gotham window");
+    } else {
+      $logger.debug("Showing Gotham window");
+    }
     appOpen = !appOpen;
     push("/");
     navTitle = "Gotham - Home";
+  }
+
+  function routeLoading(event: RouteLoadingEvent) {
+    $logger.debug(`Navigating to ${event.detail.location}`);
   }
 </script>
 
@@ -184,6 +203,7 @@
     class="modal"
     class:show-modal={appOpen}
     on:click={() => {
+      $logger.debug("Hiding Gotham window");
       appOpen = false;
     }}
   >
@@ -223,7 +243,7 @@
           >
         {/if}
       </NavBar>
-      <Router {routes} />
+      <Router {routes} on:routeLoading={routeLoading} />
     </div>
   </div>
 </div>

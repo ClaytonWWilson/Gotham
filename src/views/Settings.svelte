@@ -2,8 +2,13 @@
   import SearchableList from "../components/SearchableList.svelte";
   import { DEFAULT_FILTERS } from "../lib/defaults";
   import { STATION_NAME_REGEX } from "../lib/utilites";
+  import { logger } from "../loggerStore";
   import { roomList, settings } from "../stores";
   import type { FilterRule, JobChecklistItem } from "../types/ui";
+
+  settings.subscribe((newSettings) => {
+    $logger.debug("Settings updated", newSettings);
+  });
 
   let autoHideRoomsListVisible = false;
   let roomsChecklist: JobChecklistItem[] = [];
