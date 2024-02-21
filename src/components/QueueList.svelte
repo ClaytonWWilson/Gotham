@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import Trash from "../icons/Trash.svelte";
+  import TrashIcon from "../icons/TrashIcon.svelte";
   import { truncateString } from "../lib/utilites";
   import type AwaitedQueueProcessor from "../lib/AwaitedQueueProcessor";
   import type { APIAction } from "../types/api";
@@ -31,7 +31,7 @@
             deleteHandler(index);
           }}
           on:keydown={() => {}}
-          ><Trash
+          ><TrashIcon
             --color="red"
             --width="15px"
             --height="15px"

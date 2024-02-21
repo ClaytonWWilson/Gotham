@@ -4,7 +4,7 @@
   import { fetchChimeContacts, fetchChimeRooms } from "./lib/fetchToState";
   import { getIntersection, leftPad } from "./lib/utilites";
   import { routes } from "./routes.js";
-  import { roomList, runningQueue, settings } from "./stores";
+  import { currentLocation, roomList, runningQueue, settings } from "./stores";
   import { logger } from "./loggerStore";
   import type { APIAction, APIRequest, ChimeRoom } from "./types/api";
 
@@ -15,8 +15,6 @@
     $logger.debug("Page closed or refreshed", e);
     $logger.flush();
   };
-
-  let navTitle = "Gotham - Home";
 
   async function autoHideRooms() {
     const openHideableRooms = new Map<
@@ -180,11 +178,12 @@
     }
     appOpen = !appOpen;
     push("/");
-    navTitle = "Gotham - Home";
   }
 
   function routeLoading(event: RouteLoadingEvent) {
-    $logger.debug(`Navigating to ${event.detail.location}`);
+    const location = event.detail.location;
+    $logger.debug(`Navigating to ${location}`);
+    $currentLocation = location;
   }
 </script>
 
@@ -200,24 +199,7 @@
     }}
   >
     <div class="modal-content" on:click|stopPropagation={() => {}}>
-      <NavBar title={navTitle}>
-        <a href="/" use:link on:click={() => (navTitle = "Gotham - Home")}
-          >Home</a
-        >
-        <a
-          href="/addjob"
-          use:link
-          on:click={() => (navTitle = "Gotham - New Job")}>Add</a
-        >
-        <a
-          href="/settings"
-          use:link
-          on:click={() => (navTitle = "Gotham - Settings")}>Settings</a
-        >
-        <a href="/help" use:link on:click={() => (navTitle = "Gotham - Help")}
-          >Help</a
-        >
-      </NavBar>
+      <NavBar />
       <Router {routes} on:routeLoading={routeLoading} />
     </div>
   </div>
