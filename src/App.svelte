@@ -166,14 +166,6 @@
     );
   }
 
-  async function copyLogsToClipboard() {
-    const text = await $logger.exportGzipped(1000);
-    GM_setClipboard(text, {
-      type: "text",
-      mimetype: "text/plain",
-    });
-  }
-
   fetchChimeRooms();
   fetchChimeContacts();
   autoHideRooms();
@@ -222,26 +214,9 @@
           use:link
           on:click={() => (navTitle = "Gotham - Settings")}>Settings</a
         >
-        <button
-          class="refresh-button"
-          on:click={() => {
-            fetchChimeRooms();
-            fetchChimeContacts();
-          }}>Refresh Data</button
+        <a href="/help" use:link on:click={() => (navTitle = "Gotham - Help")}
+          >Help</a
         >
-        <button
-          class="refresh-button"
-          on:click={async () => copyLogsToClipboard()}>Copy Logs</button
-        >
-        {#if $roomList.updatedAt}
-          <span class="last-updated"
-            >{`Last updated at ${$roomList.updatedAt.getHours()}:${leftPad(
-              $roomList.updatedAt.getMinutes().toFixed(),
-              2,
-              "0"
-            )}`}</span
-          >
-        {/if}
       </NavBar>
       <Router {routes} on:routeLoading={routeLoading} />
     </div>
@@ -258,10 +233,6 @@
     background-color: #6b6b6b;
     margin-left: 10px;
     border-radius: 4px;
-  }
-
-  .last-updated {
-    color: gray;
   }
 
   .modal {
@@ -297,11 +268,6 @@
     height: 80%;
     justify-items: center;
     font-size: 13px;
-  }
-
-  .refresh-button {
-    color: white;
-    background-color: #6b6b6b;
   }
 
   .show-modal {
