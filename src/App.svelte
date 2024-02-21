@@ -1,21 +1,20 @@
 <script lang="ts">
-  import Router, { link, push } from "svelte-spa-router";
+  import Router, { link, push, RouteLoadingEvent } from "svelte-spa-router";
   import NavBar from "./components/NavBar.svelte";
   import { fetchChimeContacts, fetchChimeRooms } from "./lib/fetchToState";
   import { getIntersection, leftPad } from "./lib/utilites";
   import { routes } from "./routes.js";
-  import { roomList, runningQueue, settings } from "./stores";
+  import { currentLocation, roomList, runningQueue, settings } from "./stores";
   import { logger } from "./loggerStore";
   import type { APIAction, APIRequest, ChimeRoom } from "./types/api";
 
   export let rootId: string;
 
   // Catch page navigations and refreshes to write all logs to tampermonkey storage
-  window.onbeforeunload = () => {
+  window.onbeforeunload = (e: BeforeUnloadEvent) => {
+    $logger.debug("Page closed or refreshed", e);
     $logger.flush();
   };
-
-  let navTitle = "Gotham - Home";
 
   async function autoHideRooms() {
     const openHideableRooms = new Map<
@@ -44,14 +43,18 @@
 
     setInterval(
       () => {
-        if (!$settings.autoHideEnabled) return;
+        $logger.debug("Starting auto-hide.");
+        if (!$settings.autoHideEnabled) {
+          $logger.debug("Auto-hide disabled");
+          return;
+        }
 
         const visibleRoomsContainerElement = document.querySelector(
           "#app > div.LayoutRoute > div > nav > div.Sidebar__discussions > div.RoomList > div.SortableList"
         );
 
         if (!visibleRoomsContainerElement) {
-          $logger.warn("Can't find Chime rooms list");
+          $logger.warn("Can't find Chime rooms list, stopping auto-hide");
           return;
         }
 
@@ -64,7 +67,10 @@
             | undefined;
 
           if (!anchor) {
-            $logger.warn("Can't find channel link");
+            $logger.warn(
+              "Can't find channel link in room element, stopping auto-hide",
+              roomElement
+            );
             return;
           }
 
@@ -151,17 +157,11 @@
             openHideableRooms.delete(storedId);
           }
         });
+
+        $logger.debug("Auto-hide complete");
       },
       1 * 60 * 1000
     );
-  }
-
-  async function copyLogsToClipboard() {
-    const text = await $logger.exportGzipped(1000);
-    GM_setClipboard(text, {
-      type: "text",
-      mimetype: "text/plain",
-    });
   }
 
   fetchChimeRooms();
@@ -171,9 +171,19 @@
   let appOpen = false;
 
   function hideApp() {
+    if (appOpen) {
+      $logger.debug("Hiding Gotham window");
+    } else {
+      $logger.debug("Showing Gotham window");
+    }
     appOpen = !appOpen;
     push("/");
-    navTitle = "Gotham - Home";
+  }
+
+  function routeLoading(event: RouteLoadingEvent) {
+    const location = event.detail.location;
+    $logger.debug(`Navigating to ${location}`);
+    $currentLocation = location;
   }
 </script>
 
@@ -184,46 +194,13 @@
     class="modal"
     class:show-modal={appOpen}
     on:click={() => {
+      $logger.debug("Hiding Gotham window");
       appOpen = false;
     }}
   >
     <div class="modal-content" on:click|stopPropagation={() => {}}>
-      <NavBar title={navTitle}>
-        <a href="/" use:link on:click={() => (navTitle = "Gotham - Home")}
-          >Home</a
-        >
-        <a
-          href="/addjob"
-          use:link
-          on:click={() => (navTitle = "Gotham - New Job")}>Add</a
-        >
-        <a
-          href="/settings"
-          use:link
-          on:click={() => (navTitle = "Gotham - Settings")}>Settings</a
-        >
-        <button
-          class="refresh-button"
-          on:click={() => {
-            fetchChimeRooms();
-            fetchChimeContacts();
-          }}>Refresh Data</button
-        >
-        <button
-          class="refresh-button"
-          on:click={async () => copyLogsToClipboard()}>Copy Logs</button
-        >
-        {#if $roomList.updatedAt}
-          <span class="last-updated"
-            >{`Last updated at ${$roomList.updatedAt.getHours()}:${leftPad(
-              $roomList.updatedAt.getMinutes().toFixed(),
-              2,
-              "0"
-            )}`}</span
-          >
-        {/if}
-      </NavBar>
-      <Router {routes} />
+      <NavBar />
+      <Router {routes} on:routeLoading={routeLoading} />
     </div>
   </div>
 </div>
@@ -238,10 +215,6 @@
     background-color: #6b6b6b;
     margin-left: 10px;
     border-radius: 4px;
-  }
-
-  .last-updated {
-    color: gray;
   }
 
   .modal {
@@ -277,11 +250,6 @@
     height: 80%;
     justify-items: center;
     font-size: 13px;
-  }
-
-  .refresh-button {
-    color: white;
-    background-color: #6b6b6b;
   }
 
   .show-modal {

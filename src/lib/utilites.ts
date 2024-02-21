@@ -1,6 +1,10 @@
 export const STATION_NAME_REGEX =
   /^\s?((AMXL)?.?[A-Z]{3}[1-9]{1}.?.?(-|–).?.Central[\s]?Ops.?(-|–).?[A-Za-z]+)|DON3 - East - Central Ops$/g;
 
+const DAY_SECONDS = 24 * 60 * 60;
+const HOUR_SECONDS = 60 * 60;
+const MINUTE_SECONDS = 60;
+
 export async function sleepms(milliseconds: number) {
   return new Promise<void>((resolve, _reject) => {
     setTimeout(() => {
@@ -134,4 +138,49 @@ export function objectifyInstance(instance: any) {
 
 export function stringifyInstance(instance: {}) {
   return JSON.stringify(objectifyInstance(instance));
+}
+
+export function relativeTime(d1: Date, d2: Date) {
+  let rem = Math.ceil((d1.valueOf() - d2.valueOf()) / 1000);
+  let future: boolean;
+
+  if (rem < 0) {
+    future = true;
+    rem *= -1;
+  }
+
+  let days = Math.floor(rem / DAY_SECONDS);
+  rem = rem % DAY_SECONDS;
+
+  let hours = Math.floor(rem / HOUR_SECONDS);
+  rem = rem % HOUR_SECONDS;
+
+  let minutes = Math.floor(rem / MINUTE_SECONDS);
+  rem = rem % MINUTE_SECONDS;
+
+  let seconds = rem;
+
+  let message = "";
+
+  if (days > 0) {
+    message += `${days} days`;
+  }
+
+  if (hours > 0) {
+    message += ` ${hours} hours`;
+  }
+
+  if (minutes > 0) {
+    message += ` ${minutes} minutes`;
+  }
+
+  message += ` ${seconds} seconds`;
+
+  if (future) {
+    message = `in ${message}`;
+  } else {
+    message += " ago";
+  }
+
+  return message;
 }

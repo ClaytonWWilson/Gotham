@@ -154,3 +154,5 @@ settings.subscribe((updated) => {
     return prev;
   });
 });
+
+export const currentLocation = writable("/");
