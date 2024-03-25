@@ -74,7 +74,12 @@
       {/each}
     </div>
   </div>
-  <input type="search" class="search-input" bind:value={searchString} />
+  <input
+    type="search"
+    class="search-input"
+    placeholder="Type to search..."
+    bind:value={searchString}
+  />
   <div class="ul-container">
     {#if loading}
       Loaded {checklistItems.length} {title}...
@@ -164,6 +169,9 @@
   .search-input {
     color: white;
     background-color: #6b6b6b;
+  }
+  .search-input::placeholder {
+    color: white;
   }
 
   .select-button {
