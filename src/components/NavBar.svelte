@@ -22,7 +22,7 @@
     <a href="/" use:link
       ><HomeIcon
         --color={$currentLocation === "/" ? iconColorSelected : iconColorNormal}
-        --color-hover={$currentLocation === "/"
+        --stroke-hover={$currentLocation === "/"
           ? iconColorSelected
           : iconColorHover}
         --width={iconWidth}
@@ -36,7 +36,7 @@
         --color={$currentLocation === "/addjob"
           ? iconColorSelected
           : iconColorNormal}
-        --color-hover={$currentLocation === "/addjob"
+        --stroke-hover={$currentLocation === "/addjob"
           ? iconColorSelected
           : iconColorHover}
         --width={iconWidth}
@@ -49,7 +49,7 @@
         --color={$currentLocation === "/settings"
           ? iconColorSelected
           : iconColorNormal}
-        --color-hover={$currentLocation === "/settings"
+        --stroke-hover={$currentLocation === "/settings"
           ? iconColorSelected
           : iconColorHover}
         --width={iconWidth}
@@ -62,7 +62,7 @@
         --color={$currentLocation === "/help"
           ? iconColorSelected
           : iconColorNormal}
-        --color-hover={$currentLocation === "/help"
+        --stroke-hover={$currentLocation === "/help"
           ? iconColorSelected
           : iconColorHover}
         --width={iconWidth}
