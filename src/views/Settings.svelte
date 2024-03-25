@@ -1,9 +1,10 @@
 <script lang="ts">
   import SearchableList from "../components/SearchableList.svelte";
-  import { DEFAULT_FILTERS } from "../lib/defaults";
+  import { DEFAULT_APP_SETTINGS, DEFAULT_FILTERS } from "../lib/defaults";
   import { STATION_NAME_REGEX } from "../lib/utilites";
   import { logger } from "../loggerStore";
   import { roomList, settings } from "../stores";
+  import type { AppSettings } from "../types/state";
   import type { FilterRule, JobChecklistItem } from "../types/ui";
 
   settings.subscribe((newSettings) => {
@@ -40,6 +41,21 @@
     ...DEFAULT_FILTERS,
     { name: "Stations", matcher: STATION_NAME_REGEX },
   ];
+
+  function resetSettingsHandler() {
+    const temp = JSON.parse(
+      JSON.stringify(DEFAULT_APP_SETTINGS)
+    ) as AppSettings;
+
+    temp.autoHideRooms = new Set(temp.autoHideRooms);
+    $settings.autoHideRooms.clear();
+    $settings = temp;
+    roomsChecklist.forEach((room) => {
+      room.checked = false;
+    });
+
+    roomsChecklist = roomsChecklist;
+  }
 </script>
 
 <div class="container">
@@ -88,6 +104,9 @@
         />
       </div>
     {/if}
+  </div>
+  <div class="settings-row">
+    <button on:click={resetSettingsHandler}>Reset Settings</button>
   </div>
 </div>
 
