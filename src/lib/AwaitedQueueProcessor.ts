@@ -10,7 +10,6 @@ export default class AwaitedQueueProcessor<T, U> implements Queue<T> {
   items: T[];
   length: number;
   lastRun: Date | null;
-  continuousRun: boolean;
 
   constructor(
     asynccallbackfn: (queueItem: T, index: number) => Promise<U>,
@@ -24,16 +23,11 @@ export default class AwaitedQueueProcessor<T, U> implements Queue<T> {
     this.running = false;
     this.stopped = false;
     this.lastRun = null;
-    this.continuousRun = false;
   }
 
   enqueue(...items: T[]) {
     this.queue.enqueue(...items);
     this.length = this.queue.length;
-
-    if (this.continuousRun) {
-      this.runIndefinite();
-    }
   }
 
   dequeue() {
@@ -125,7 +119,6 @@ export default class AwaitedQueueProcessor<T, U> implements Queue<T> {
     if (this.running) return;
 
     this.running = true;
-    this.continuousRun = true;
     let index = 0;
     while (!this.stopped) {
       try {
@@ -144,7 +137,6 @@ export default class AwaitedQueueProcessor<T, U> implements Queue<T> {
 
     this.running = false;
     this.stopped = false;
-    this.continuousRun = false;
   }
 
   async stop() {
