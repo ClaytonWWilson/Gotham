@@ -147,11 +147,26 @@
               status: "QUEUED",
               retries: 5,
             };
-            $runningQueue.enqueue(action);
+
+            // if ($settings.enabled) {
+            if (
+              !$runningQueue.items.find((item) => {
+                return item.displayMessage === action.displayMessage;
+              })
+            ) {
+              $logger.debug("Adding auto-hide room to running queue", action);
+              $runningQueue.enqueue(action);
+            } else {
+              $logger.debug("Auto-hide room already in queue", action);
+            }
+            // } else {
+            // $plannedQueue.enqueue(action);
+            // }
           }
         });
 
         $runningQueue = $runningQueue;
+        // $plannedQueue = $plannedQueue;
 
         openHideableRooms.forEach((_, storedId) => {
           if (!autoHideRoomIds.has(storedId)) {
