@@ -32,12 +32,18 @@ let meta = {
 if (!production) {
   meta.require = [pathToFileURL(path.join(devBaseURL, "bundle.js"))];
 }
-
-if (production) {
+//drive.corp.amazon.com/view/eclawils@/public/scripts/central-ops/open-stations/releases/open-stations.user.js?download=true
+https: if (production) {
   meta.downloadURL =
-    "https://github.com/ClaytonWWilson/Gotham/releases/latest/download/gotham.user.js";
+    "https://drive.corp.amazon.com/view/eclawils@/public/scripts/central-ops/gotham/releases/gotham.user.js?download=true";
   meta.updateURL =
-    "https://github.com/ClaytonWWilson/Gotham/releases/latest/download/gotham.user.js";
+    "https://drive.corp.amazon.com/view/eclawils@/public/scripts/central-ops/gotham/releases/gotham.user.js?download=true";
 }
+// if (production) {
+//   meta.downloadURL =
+//     "https://github.com/ClaytonWWilson/Gotham/releases/latest/download/gotham.user.js";
+//   meta.updateURL =
+//     "https://github.com/ClaytonWWilson/Gotham/releases/latest/download/gotham.user.js";
+// }
 
 module.exports = meta;
