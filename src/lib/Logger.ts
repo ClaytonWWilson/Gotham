@@ -316,7 +316,7 @@ export class Logger {
     // Delete old buckets if the number is too large
     let oldBuckets = this.bucketIndex
       .sort((a, b) => a.createdAt - b.createdAt)
-      .slice(0, -this.bufferCapacity);
+      .slice(0, -this.outputs.tampermonkey.maxBuckets);
 
     oldBuckets.forEach((oldBucket) => {
       GM_deleteValue(oldBucket.name);

@@ -17,4 +17,5 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
   autoHideRooms: new Set(),
   autoHideWaitSeconds: 5 * 60,
   requestWaitSeconds: 1,
+  enabled: true,
 };

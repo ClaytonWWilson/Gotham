@@ -7,6 +7,7 @@
   import { currentLocation, roomList, runningQueue, settings } from "./stores";
   import { logger } from "./loggerStore";
   import type { APIAction, APIRequest, ChimeRoom } from "./types/api";
+  import GothamIcon from "./icons/GothamIcon.svelte";
 
   export let rootId: string;
 
@@ -146,11 +147,26 @@
               status: "QUEUED",
               retries: 5,
             };
-            $runningQueue.enqueue(action);
+
+            // if ($settings.enabled) {
+            if (
+              !$runningQueue.items.find((item) => {
+                return item.displayMessage === action.displayMessage;
+              })
+            ) {
+              $logger.debug("Adding auto-hide room to running queue", action);
+              $runningQueue.enqueue(action);
+            } else {
+              $logger.debug("Auto-hide room already in queue", action);
+            }
+            // } else {
+            // $plannedQueue.enqueue(action);
+            // }
           }
         });
 
         $runningQueue = $runningQueue;
+        // $plannedQueue = $plannedQueue;
 
         openHideableRooms.forEach((_, storedId) => {
           if (!autoHideRoomIds.has(storedId)) {
@@ -170,7 +186,7 @@
 
   let appOpen = false;
 
-  function hideApp() {
+  function toggleApp() {
     if (appOpen) {
       $logger.debug("Hiding Gotham window");
     } else {
@@ -188,7 +204,14 @@
 </script>
 
 <div id={rootId}>
-  <button class="gotham-button" on:click={hideApp}> Gotham </button>
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <div class="gotham-button" on:click={toggleApp}>
+    <GothamIcon --color={"gray"} />
+  </div>
+  <!-- --stroke-hover={"gray"} -->
+  <!-- --color-hover={"rgba(255, 255, 255, 1)"} -->
+  <!-- --shadow-color-hover={"rgba(145, 92, 182, 0.4)"} -->
+
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div
     class="modal"
@@ -206,15 +229,14 @@
 </div>
 
 <style>
-  button {
-    color: white;
-  }
-
   .gotham-button {
-    display: inline-block;
-    background-color: #6b6b6b;
+    display: flex;
+    cursor: pointer;
     margin-left: 10px;
+    margin-right: -10px;
     border-radius: 4px;
+    width: 60px;
+    height: 30px;
   }
 
   .modal {

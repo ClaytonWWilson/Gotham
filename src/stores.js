@@ -134,8 +134,12 @@ for (let key of Object.keys(parsedSettings)) {
   }
 }
 
-// Convert JSON-parsed array into set
-parsedSettings.autoHideRooms = new Set(parsedSettings.autoHideRooms);
+// Convert JSON-parsed array for auto-hide rooms into set
+if (Object.keys(parsedSettings.autoHideRooms).length == 0) {
+  parsedSettings.autoHideRooms = new Set();
+} else {
+  parsedSettings.autoHideRooms = new Set(parsedSettings.autoHideRooms);
+}
 
 /**
  * @type import("svelte/store").Writable<import("./types/state").AppSettings>

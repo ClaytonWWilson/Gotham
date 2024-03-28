@@ -34,6 +34,6 @@
   }
 
   svg:hover {
-    stroke: var(--color-hover);
+    stroke: var(--stroke-hover);
   }
 </style>
