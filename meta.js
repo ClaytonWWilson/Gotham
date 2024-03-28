@@ -20,6 +20,7 @@ let meta = {
     "GM_getResourceText",
     "GM_getValue",
     "GM_setValue",
+    "GM_deleteValue",
     "GM_setClipboard",
     "GM_listValues",
     "GM_xmlhttpRequest",
