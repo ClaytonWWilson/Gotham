@@ -135,7 +135,7 @@
     min-height: 100%;
   }
 
-  .on-off-switch {
+  /* .on-off-switch {
     float: right;
     cursor: pointer;
   }
@@ -148,5 +148,5 @@
   .disabled {
     background-color: red;
     color: black;
-  }
+  } */
 </style>
